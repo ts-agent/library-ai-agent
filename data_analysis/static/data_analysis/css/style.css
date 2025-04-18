@@ -1,0 +1,42 @@
+body {
+    background-color: #1a1d20;
+    color: #e9ecef;
+}
+
+.navbar-brand i {
+    margin-right: 8px;
+}
+
+.agent-feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #0dcaf0;
+}
+
+.card {
+    background-color: #212529;
+    border: 1px solid #2c3034;
+}
+
+.navbar {
+    background-color: #212529 !important;
+    border-bottom: 1px solid #2c3034;
+}
+
+.footer {
+    background-color: #212529 !important;
+    border-top: 1px solid #2c3034;
+    color: #6c757d;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.card-title {
+    color: #0dcaf0;
+}
+
+.display-4 i {
+    color: #0dcaf0;
+} 

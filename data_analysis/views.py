@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from .models import Performance, Actor, SeatGrade, Casting
+from .forms import PerformanceForm
 
 def index(request):
     context = {
@@ -26,14 +27,14 @@ class PerformanceDetailView(DetailView):
 
 class PerformanceCreateView(CreateView):
     model = Performance
+    form_class = PerformanceForm
     template_name = 'data_analysis/performance/form.html'
-    fields = ['name', 'venue', 'start_date', 'end_date', 'age_limit']
     success_url = reverse_lazy('data_analysis:performance_list')
 
 class PerformanceUpdateView(UpdateView):
     model = Performance
+    form_class = PerformanceForm
     template_name = 'data_analysis/performance/form.html'
-    fields = ['name', 'venue', 'start_date', 'end_date', 'age_limit']
     success_url = reverse_lazy('data_analysis:performance_list')
 
 class PerformanceDeleteView(DeleteView):

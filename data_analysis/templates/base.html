@@ -16,55 +16,290 @@
     
     <!-- 추가 CSS -->
     {% block extra_css %}{% endblock %}
+
+    <style>
+        /* 전체 레이아웃 */
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 다크모드 비활성화 */
+        [data-bs-theme=dark] {
+            --bs-body-color: #000000;
+            --bs-body-bg: #ffffff;
+            --bs-emphasis-color: #000000;
+            --bs-border-color: transparent;
+        }
+
+        /* 사이드바 스타일 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            background-color: #f8f8f8;
+            border-right: 1px solid #ebebeb;
+            padding: 1rem;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar .nav-link {
+            color: #000000;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: #ebebeb;
+        }
+
+        /* 메인 컨텐츠 영역 */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* 헤더 스타일 */
+        .navbar {
+            background-color: #f8f8f8 !important;
+            border-bottom: 1px solid #ebebeb;
+        }
+
+        .navbar-brand, .nav-link {
+            color: #000000 !important;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: #ebebeb !important;
+        }
+
+        /* 카드 스타일 */
+        .card {
+            background-color: #f8f8f8;
+            border: none !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-footer {
+            background-color: #f8f8f8;
+            border-top: none !important;
+        }
+
+        /* 선택된 요소 배경색 */
+        .selected, 
+        .btn:hover,
+        .nav-link.active {
+            background-color: #ebebeb !important;
+            border-color: #ebebeb !important;
+        }
+
+        /* 포인트 컬러 */
+        .btn-primary {
+            background-color: #a8deff !important;
+            border-color: #a8deff !important;
+            color: #000000 !important;
+        }
+
+        .btn-outline-primary {
+            border-color: #a8deff !important;
+            color: #000000 !important;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #a8deff !important;
+            color: #000000 !important;
+        }
+
+        /* 텍스트 컬러 */
+        body, h1, h2, h3, h4, h5, h6, p, .card-title, .card-text {
+            color: #000000;
+        }
+
+        .text-muted {
+            color: #666666 !important;
+        }
+
+        /* 메인 푸터 */
+        .footer {
+            background-color: #f8f8f8 !important;
+            border-top: 1px solid #ebebeb;
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+
+        .footer span {
+            color: #000000 !important;
+        }
+
+        /* 테이블 스타일 */
+        .table {
+            background-color: #f8f8f8 !important;
+            color: #000000 !important;
+            border-color: transparent !important;
+        }
+
+        .table thead {
+            background-color: #f8f8f8 !important;
+        }
+
+        .table tbody tr {
+            background-color: #f8f8f8 !important;
+            border-color: transparent !important;
+        }
+
+        .table td, .table th {
+            border-color: #ebebeb !important;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #ebebeb !important;
+        }
+
+        /* 폼 요소 스타일 */
+        .form-control, .form-select {
+            background-color: #ffffff !important;
+            border-color: #ebebeb !important;
+            color: #000000 !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #a8deff !important;
+            box-shadow: 0 0 0 0.25rem rgba(168, 222, 255, 0.25) !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .form-control::placeholder {
+            color: #666666 !important;
+        }
+
+        /* 드롭다운 메뉴 스타일 */
+        .dropdown-menu {
+            background-color: #ffffff !important;
+            border-color: #ebebeb !important;
+        }
+
+        .dropdown-item {
+            color: #000000 !important;
+        }
+
+        .dropdown-item:hover {
+            background-color: #ebebeb !important;
+        }
+    </style>
 </head>
 <body>
-    <!-- 네비게이션 바 -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'data_analysis:index' %}">
-                <i class="bi bi-robot"></i>AI Data Agent
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'data_analysis:index' %}">
-                            <i class="bi bi-house-door"></i> 홈
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-graph-up"></i> 데이터 분석
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="bi bi-gear"></i> 설정
-                        </a>
-                    </li>
-                </ul>
-            </div>
+    <!-- 사이드바 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4 class="mb-0">
+                <i class="bi bi-robot"></i>
+                AI Data Agent
+            </h4>
         </div>
-    </nav>
+        <nav class="nav flex-column">
+            <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'data_analysis:index' %}">
+                <i class="bi bi-house-door"></i>
+                대시보드
+            </a>
+            <a class="nav-link {% if 'performance' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'data_analysis:performance_list' %}">
+                <i class="bi bi-music-note-beamed"></i>
+                공연 관리
+            </a>
+            <a class="nav-link {% if 'actor' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'data_analysis:actor_list' %}">
+                <i class="bi bi-person"></i>
+                배우 관리
+            </a>
+            <a class="nav-link {% if 'seatgrade' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'data_analysis:seatgrade_list' %}">
+                <i class="bi bi-ticket-perforated"></i>
+                좌석 등급 관리
+            </a>
+            <a class="nav-link {% if 'casting' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'data_analysis:casting_list' %}">
+                <i class="bi bi-people"></i>
+                캐스팅 관리
+            </a>
+            <a class="nav-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'data_analysis:review_list' %}">
+                <i class="bi bi-star"></i>
+                리뷰 관리
+            </a>
+        </nav>
+    </div>
 
     <!-- 메인 컨텐츠 -->
-    <main class="container mt-4">
+    <div class="main-content">
+        <!-- 상단 헤더 -->
+        <header class="mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn d-md-none" type="button" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="d-flex align-items-center">
+                    <h4 class="mb-0">{% block page_title %}AI Agent - 데이터 분석{% endblock %}</h4>
+                </div>
+            </div>
+        </header>
+
+        <!-- 페이지 컨텐츠 -->
         {% block content %}
         {% endblock %}
-    </main>
+    </div>
 
     <!-- 푸터 -->
-    <footer class="footer mt-auto py-3">
-        <div class="container text-center">
-            <span class="text-muted">© 2024 AI Data Agent - Powered by Advanced AI Technology</span>
+    <footer class="footer mt-auto">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>© 2024 AI Data Agent</span>
+                <span>Powered by Advanced AI Technology</span>
+            </div>
         </div>
     </footer>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- 사이드바 토글 스크립트 -->
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        }
+    </script>
+
     <!-- 추가 JavaScript -->
     {% block extra_js %}{% endblock %}
 </body>

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-4">{% block crud_title %}{% endblock %}</h2>
+        {% block crud_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %} 

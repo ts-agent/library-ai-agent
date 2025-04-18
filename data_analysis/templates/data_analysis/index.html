@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">공연 데이터 관리</h1>
+    
+    <div class="row g-4">
+        <!-- 공연 관리 카드 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-music-note-beamed"></i>
+                        공연 관리
+                    </h5>
+                    <p class="card-text text-muted">공연 정보를 등록하고 관리합니다.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'data_analysis:performance_list' %}" class="btn btn-primary">
+                            <i class="bi bi-list"></i> 공연 목록
+                        </a>
+                        <a href="{% url 'data_analysis:performance_create' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i> 새 공연 등록
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">등록된 공연: {{ performances.count }}개</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 배우 관리 카드 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-person"></i>
+                        배우 관리
+                    </h5>
+                    <p class="card-text text-muted">배우 정보를 등록하고 관리합니다.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'data_analysis:actor_list' %}" class="btn btn-primary">
+                            <i class="bi bi-list"></i> 배우 목록
+                        </a>
+                        <a href="{% url 'data_analysis:actor_create' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i> 새 배우 등록
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">등록된 배우: {{ actors.count }}명</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 좌석 등급 관리 카드 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-ticket-perforated"></i>
+                        좌석 등급 관리
+                    </h5>
+                    <p class="card-text text-muted">공연별 좌석 등급을 설정합니다.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'data_analysis:seatgrade_list' %}" class="btn btn-primary">
+                            <i class="bi bi-list"></i> 좌석 등급 목록
+                        </a>
+                        <a href="{% url 'data_analysis:seatgrade_create' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i> 새 좌석 등급 등록
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">등록된 좌석 등급: {{ seatgrades.count }}개</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 캐스팅 관리 카드 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-people"></i>
+                        캐스팅 관리
+                    </h5>
+                    <p class="card-text text-muted">공연별 배우 캐스팅을 관리합니다.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'data_analysis:casting_list' %}" class="btn btn-primary">
+                            <i class="bi bi-list"></i> 캐스팅 목록
+                        </a>
+                        <a href="{% url 'data_analysis:casting_create' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i> 새 캐스팅 등록
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">등록된 캐스팅: {{ castings.count }}개</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

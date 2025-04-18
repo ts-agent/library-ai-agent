@@ -1,0 +1,59 @@
+{% extends 'data_analysis/base_crud.html' %}
+{% load crispy_forms_tags %}
+
+{% block crud_title %}
+{% if form.instance.pk %}
+캐스팅 정보 수정
+{% else %}
+새 캐스팅 등록
+{% endif %}
+{% endblock %}
+
+{% block crud_content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.performance|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.actor|as_crispy_field }}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.role_name|as_crispy_field }}
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> 저장
+                </button>
+                <a href="{% url 'data_analysis:casting_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> 취소
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if not form.instance.pk %}
+<div class="card mt-4">
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">
+            <i class="bi bi-info-circle"></i> 도움말
+        </h6>
+        <ul class="mb-0">
+            <li>공연을 선택하면 해당 공연의 기간이 자동으로 적용됩니다.</li>
+            <li>배우는 기존에 등록된 배우 중에서 선택할 수 있습니다.</li>
+            <li>역할명은 해당 배우가 공연에서 맡은 역할을 입력합니다.</li>
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

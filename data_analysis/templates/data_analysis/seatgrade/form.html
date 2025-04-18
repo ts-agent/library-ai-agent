@@ -1,0 +1,44 @@
+{% extends 'data_analysis/base_crud.html' %}
+{% load crispy_forms_tags %}
+
+{% block crud_title %}
+{% if form.instance.pk %}
+좌석 등급 수정
+{% else %}
+새 좌석 등급 등록
+{% endif %}
+{% endblock %}
+
+{% block crud_content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.performance|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.name|as_crispy_field }}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.price|as_crispy_field }}
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> 저장
+                </button>
+                <a href="{% url 'data_analysis:seatgrade_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> 취소
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

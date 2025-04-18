@@ -1,0 +1,48 @@
+{% extends 'data_analysis/base_crud.html' %}
+
+{% block crud_title %}
+좌석 등급 목록
+<a href="{% url 'data_analysis:seatgrade_create' %}" class="btn btn-primary float-end">
+    <i class="bi bi-plus-circle"></i> 새 좌석 등급 등록
+</a>
+{% endblock %}
+
+{% block crud_content %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>공연명</th>
+                <th>등급</th>
+                <th>가격</th>
+                <th>관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for seatgrade in seatgrades %}
+            <tr>
+                <td>
+                    <a href="{% url 'data_analysis:performance_detail' seatgrade.performance.pk %}" class="text-decoration-none">
+                        {{ seatgrade.performance.name }}
+                    </a>
+                </td>
+                <td>{{ seatgrade.name }}</td>
+                <td>{{ seatgrade.price|intcomma }}원</td>
+                <td>
+                    <a href="{% url 'data_analysis:seatgrade_update' seatgrade.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'data_analysis:seatgrade_delete' seatgrade.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">등록된 좌석 등급이 없습니다.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

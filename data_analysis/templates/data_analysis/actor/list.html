@@ -1,0 +1,46 @@
+{% extends 'data_analysis/base_crud.html' %}
+
+{% block crud_title %}
+배우 목록
+<a href="{% url 'data_analysis:actor_create' %}" class="btn btn-primary float-end">
+    <i class="bi bi-plus-circle"></i> 새 배우 등록
+</a>
+{% endblock %}
+
+{% block crud_content %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>이름</th>
+                <th>출연작 수</th>
+                <th>관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for actor in actors %}
+            <tr>
+                <td>
+                    <a href="{% url 'data_analysis:actor_detail' actor.pk %}" class="text-decoration-none">
+                        {{ actor.name }}
+                    </a>
+                </td>
+                <td>{{ actor.castings.count }}</td>
+                <td>
+                    <a href="{% url 'data_analysis:actor_update' actor.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'data_analysis:actor_delete' actor.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">등록된 배우가 없습니다.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

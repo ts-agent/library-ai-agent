@@ -1,0 +1,50 @@
+{% extends 'data_analysis/base_crud.html' %}
+
+{% block crud_title %}
+공연 목록
+<a href="{% url 'data_analysis:performance_create' %}" class="btn btn-primary float-end">
+    <i class="bi bi-plus-circle"></i> 새 공연 등록
+</a>
+{% endblock %}
+
+{% block crud_content %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>공연명</th>
+                <th>장소</th>
+                <th>공연 기간</th>
+                <th>관람연령</th>
+                <th>관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for performance in performances %}
+            <tr>
+                <td>
+                    <a href="{% url 'data_analysis:performance_detail' performance.pk %}" class="text-decoration-none">
+                        {{ performance.name }}
+                    </a>
+                </td>
+                <td>{{ performance.venue }}</td>
+                <td>{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</td>
+                <td>{{ performance.age_limit }}</td>
+                <td>
+                    <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'data_analysis:performance_delete' performance.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">등록된 공연이 없습니다.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

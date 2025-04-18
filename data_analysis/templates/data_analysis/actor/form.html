@@ -1,0 +1,26 @@
+{% extends 'data_analysis/base_crud.html' %}
+{% load crispy_forms_tags %}
+
+{% block crud_title %}
+{% if form.instance.pk %}
+배우 정보 수정
+{% else %}
+새 배우 등록
+{% endif %}
+{% endblock %}
+
+{% block crud_content %}
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle"></i> 저장
+        </button>
+        <a href="{% url 'data_analysis:actor_list' %}" class="btn btn-secondary">
+            <i class="bi bi-x-circle"></i> 취소
+        </a>
+    </div>
+</form>
+{% endblock %} 

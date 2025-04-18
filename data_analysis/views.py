@@ -3,8 +3,13 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.db.models import F
-from .models import Performance, Actor, SeatGrade, Casting, Review
+from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, SettlementData
 from .forms import PerformanceForm
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.urls import reverse_lazy
+from django.urls import reverse
 
 def index(request):
     context = {
@@ -179,3 +184,57 @@ class ReviewLikeView(View):
         review.likes = F('likes') + 1
         review.save()
         return JsonResponse({'status': 'success', 'likes': review.likes})
+
+@login_required
+def sales_data_upload(request, pk):
+    performance = get_object_or_404(Performance, pk=pk)
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+        description = request.POST.get('description', '')
+        
+        if file and file.name.endswith(('.xlsx', '.xls')):
+            SalesData.objects.create(
+                performance=performance,
+                file=file,
+                description=description
+            )
+            messages.success(request, '판매현황 데이터가 업로드되었습니다.')
+        else:
+            messages.error(request, '엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.')
+    
+    return redirect('data_analysis:performance_detail', pk=pk)
+
+@login_required
+def settlement_data_upload(request, pk):
+    performance = get_object_or_404(Performance, pk=pk)
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+        description = request.POST.get('description', '')
+        
+        if file and file.name.endswith(('.xlsx', '.xls')):
+            SettlementData.objects.create(
+                performance=performance,
+                file=file,
+                description=description
+            )
+            messages.success(request, '정산서 데이터가 업로드되었습니다.')
+        else:
+            messages.error(request, '엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.')
+    
+    return redirect('data_analysis:performance_detail', pk=pk)
+
+@login_required
+def sales_data_delete(request, pk):
+    data = get_object_or_404(SalesData, pk=pk)
+    performance_pk = data.performance.pk
+    data.delete()
+    messages.success(request, '판매현황 데이터가 삭제되었습니다.')
+    return redirect('data_analysis:performance_detail', pk=performance_pk)
+
+@login_required
+def settlement_data_delete(request, pk):
+    data = get_object_or_404(SettlementData, pk=pk)
+    performance_pk = data.performance.pk
+    data.delete()
+    messages.success(request, '정산서 데이터가 삭제되었습니다.')
+    return redirect('data_analysis:performance_detail', pk=performance_pk)

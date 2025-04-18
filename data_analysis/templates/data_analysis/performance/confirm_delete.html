@@ -16,6 +16,8 @@
             {{ performance.venue }}
             <br>
             {{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}
+            <br>
+            공연시간: {{ performance.running_time }}
         </p>
         <p class="text-danger">
             <i class="bi bi-exclamation-triangle"></i>

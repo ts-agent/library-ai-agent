@@ -15,6 +15,7 @@
                 <th>공연명</th>
                 <th>장소</th>
                 <th>공연 기간</th>
+                <th>공연시간</th>
                 <th>관람연령</th>
                 <th>관리</th>
             </tr>
@@ -29,6 +30,7 @@
                 </td>
                 <td>{{ performance.venue }}</td>
                 <td>{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</td>
+                <td>{{ performance.running_time }}</td>
                 <td>{{ performance.age_limit }}</td>
                 <td>
                     <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-sm btn-outline-primary">
@@ -41,7 +43,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" class="text-center">등록된 공연이 없습니다.</td>
+                <td colspan="6" class="text-center">등록된 공연이 없습니다.</td>
             </tr>
             {% endfor %}
         </tbody>

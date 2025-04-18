@@ -42,4 +42,12 @@ urlpatterns = [
     path('performances/<int:performance_pk>/reviews/', views.PerformanceReviewListView.as_view(), name='performance_review_list'),
     # 리뷰 좋아요 기능
     path('reviews/<int:pk>/like/', views.ReviewLikeView.as_view(), name='review_like'),
+
+    # 판매현황 데이터
+    path('performances/<int:pk>/sales-data/upload/', views.sales_data_upload, name='sales_data_upload'),
+    path('sales-data/<int:pk>/delete/', views.sales_data_delete, name='sales_data_delete'),
+
+    # 정산서 데이터
+    path('performances/<int:pk>/settlement-data/upload/', views.settlement_data_upload, name='settlement_data_upload'),
+    path('settlement-data/<int:pk>/delete/', views.settlement_data_delete, name='settlement_data_delete'),
 ]

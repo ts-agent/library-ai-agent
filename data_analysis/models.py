@@ -8,6 +8,7 @@ class Performance(models.Model):
     start_date = models.DateField(verbose_name='공연 시작일')
     end_date = models.DateField(verbose_name='공연 종료일')
     age_limit = models.CharField(max_length=50, verbose_name='관람연령')
+    running_time = models.CharField(max_length=50, verbose_name='공연시간', help_text='예: 150분, 2시간 30분', default='미정')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='등록일')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
 
@@ -104,3 +105,31 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.performance.name} - {self.title} ({self.rating}점)'
+
+class SalesData(models.Model):
+    performance = models.ForeignKey('Performance', on_delete=models.CASCADE, related_name='sales_data', verbose_name='공연')
+    file = models.FileField(upload_to='sales_data/%Y/%m/', verbose_name='판매현황 파일')
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='업로드 일시')
+    description = models.CharField(max_length=200, blank=True, verbose_name='설명')
+
+    class Meta:
+        verbose_name = '판매현황'
+        verbose_name_plural = '판매현황'
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f"{self.performance.name} - 판매현황 ({self.uploaded_at.strftime('%Y-%m-%d')})"
+
+class SettlementData(models.Model):
+    performance = models.ForeignKey('Performance', on_delete=models.CASCADE, related_name='settlement_data', verbose_name='공연')
+    file = models.FileField(upload_to='settlement_data/%Y/%m/', verbose_name='정산서 파일')
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='업로드 일시')
+    description = models.CharField(max_length=200, blank=True, verbose_name='설명')
+
+    class Meta:
+        verbose_name = '정산서'
+        verbose_name_plural = '정산서'
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f"{self.performance.name} - 정산서 ({self.uploaded_at.strftime('%Y-%m-%d')})"

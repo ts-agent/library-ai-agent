@@ -228,4 +228,29 @@ body, h1, h2, h3, h4, h5, h6, p, .card-title, .card-text {
 
 .display-4 i {
     color: #000000;
+}
+
+/* 선택 효과 스타일 */
+::selection {
+    background-color: rgba(168, 222, 255, 0.3);
+    color: #000000;
+}
+
+::-moz-selection {
+    background-color: rgba(168, 222, 255, 0.3);
+    color: #000000;
+}
+
+/* 테이블 선택 효과 */
+.table tbody tr:hover {
+    background-color: rgba(168, 222, 255, 0.1) !important;
+}
+
+/* 링크 호버 효과 */
+a:hover {
+    color: #000000;
+}
+
+.text-decoration-none:hover {
+    color: #000000;
 } 

@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Performance(models.Model):
     """공연 정보를 저장하는 모델"""
@@ -76,3 +76,31 @@ class Casting(models.Model):
 
     def __str__(self):
         return f'{self.performance.name} - {self.actor.name} ({self.role_name})'
+
+class Review(models.Model):
+    """공연 리뷰 정보를 저장하는 모델"""
+    performance = models.ForeignKey(
+        Performance,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='공연'
+    )
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name='별점'
+    )
+    title = models.CharField(max_length=200, verbose_name='리뷰 제목')
+    content = models.TextField(verbose_name='리뷰 내용')
+    nickname = models.CharField(max_length=50, verbose_name='닉네임')
+    is_verified = models.BooleanField(default=False, verbose_name='예매자 인증 여부')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='작성일')
+    views = models.PositiveIntegerField(default=0, verbose_name='조회수')
+    likes = models.PositiveIntegerField(default=0, verbose_name='공감수')
+
+    class Meta:
+        verbose_name = '리뷰'
+        verbose_name_plural = '리뷰 목록'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.performance.name} - {self.title} ({self.rating}점)'

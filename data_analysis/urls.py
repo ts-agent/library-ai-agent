@@ -31,4 +31,15 @@ urlpatterns = [
     path('castings/create/', views.CastingCreateView.as_view(), name='casting_create'),
     path('castings/<int:pk>/update/', views.CastingUpdateView.as_view(), name='casting_update'),
     path('castings/<int:pk>/delete/', views.CastingDeleteView.as_view(), name='casting_delete'),
+
+    # Review URLs
+    path('reviews/', views.ReviewListView.as_view(), name='review_list'),
+    path('reviews/<int:pk>/', views.ReviewDetailView.as_view(), name='review_detail'),
+    path('reviews/create/', views.ReviewCreateView.as_view(), name='review_create'),
+    path('reviews/<int:pk>/update/', views.ReviewUpdateView.as_view(), name='review_update'),
+    path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review_delete'),
+    # 공연별 리뷰 목록
+    path('performances/<int:performance_pk>/reviews/', views.PerformanceReviewListView.as_view(), name='performance_review_list'),
+    # 리뷰 좋아요 기능
+    path('reviews/<int:pk>/like/', views.ReviewLikeView.as_view(), name='review_like'),
 ]

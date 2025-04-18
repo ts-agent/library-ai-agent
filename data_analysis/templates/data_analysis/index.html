@@ -100,6 +100,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- 리뷰 관리 카드 -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">리뷰 관리</h5>
+                    <p class="card-text">공연별 관람객 리뷰를 관리합니다.</p>
+                    <a href="{% url 'data_analysis:review_list' %}" class="btn btn-primary">
+                        <i class="bi bi-star"></i> 리뷰 목록
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %} 

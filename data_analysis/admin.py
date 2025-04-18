@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Performance, SeatGrade, Actor, Casting
+from .models import Performance, SeatGrade, Actor, Casting, Review
 
 class SeatGradeInline(admin.TabularInline):
     model = SeatGrade
@@ -9,7 +9,7 @@ class SeatGradeInline(admin.TabularInline):
 class CastingInline(admin.TabularInline):
     model = Casting
     extra = 1
-    autocomplete_fields = ['actor']
+    min_num = 1
 
 @admin.register(Performance)
 class PerformanceAdmin(admin.ModelAdmin):
@@ -29,13 +29,9 @@ class SeatGradeAdmin(admin.ModelAdmin):
 
 @admin.register(Actor)
 class ActorAdmin(admin.ModelAdmin):
-    list_display = ['name', 'created_at', 'get_performances_count']
+    list_display = ['name', 'created_at']
     search_fields = ['name']
     ordering = ['name']
-    
-    def get_performances_count(self, obj):
-        return obj.castings.count()
-    get_performances_count.short_description = '출연 공연 수'
 
 @admin.register(Casting)
 class CastingAdmin(admin.ModelAdmin):
@@ -43,3 +39,12 @@ class CastingAdmin(admin.ModelAdmin):
     list_filter = ['performance', 'actor']
     search_fields = ['performance__name', 'actor__name', 'role_name']
     autocomplete_fields = ['performance', 'actor']
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['performance', 'title', 'rating', 'nickname', 'is_verified', 'created_at', 'views', 'likes']
+    list_filter = ['performance', 'rating', 'is_verified', 'created_at']
+    search_fields = ['performance__name', 'title', 'content', 'nickname']
+    ordering = ['-created_at']
+    readonly_fields = ['views', 'likes', 'created_at']
+    list_per_page = 20

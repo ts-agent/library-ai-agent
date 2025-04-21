@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'ai_agent.wsgi.application'
 DB_HOST = os.environ.get('DB_HOST', '/cloudsql/library-ai-agent-kr:asia-northeast3:library-ai-db')
 DB_NAME = os.environ.get('DB_NAME', 'library_ai_db')
 DB_USER = os.environ.get('DB_USER', 'postgres')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'library-ai-password123!')
+DB_PASSWORD = os.environ.get('DB_PASSWORD', 'Library@AI2024!')
 
 if os.getenv('GAE_ENV', '').startswith('standard'):
     # App Engine 환경

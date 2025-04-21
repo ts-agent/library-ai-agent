@@ -1,5 +1,6 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, URLValidator
+from django.utils.translation import gettext_lazy as _
 
 class Performance(models.Model):
     """공연 정보를 저장하는 모델"""
@@ -197,3 +198,58 @@ class MarketingEvent(models.Model):
 
     def __str__(self):
         return f"{self.calendar.performance.name} - {self.start_date}: {self.title}"
+
+class CrawlingTarget(models.Model):
+    """크롤링 대상 공연 정보를 관리하는 모델"""
+    
+    performance = models.ForeignKey(
+        'Performance',
+        on_delete=models.CASCADE,
+        related_name='crawling_targets',
+        verbose_name=_('공연')
+    )
+    
+    platform = models.CharField(
+        max_length=50,
+        verbose_name=_('플랫폼'),
+        help_text=_('크롤링할 플랫폼 이름을 입력하세요. (예: 인터파크티켓, 티켓링크, 인스타그램)')
+    )
+    
+    url = models.URLField(
+        max_length=500,
+        validators=[URLValidator()],
+        verbose_name=_('URL'),
+        help_text=_('크롤링할 페이지의 URL을 입력하세요.')
+    )
+    
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name=_('활성화 여부'),
+        help_text=_('크롤링 대상 활성화 여부를 설정합니다.')
+    )
+    
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('등록일')
+    )
+    
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('수정일')
+    )
+    
+    last_crawled_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('마지막 크롤링 일시'),
+        help_text=_('가장 최근에 크롤링을 수행한 일시입니다.')
+    )
+
+    class Meta:
+        verbose_name = _('크롤링 대상')
+        verbose_name_plural = _('크롤링 대상 목록')
+        ordering = ['-created_at']
+        unique_together = ['performance', 'platform', 'url']
+
+    def __str__(self):
+        return f"{self.performance.name} - {self.platform}"

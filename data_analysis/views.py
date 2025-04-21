@@ -3,13 +3,15 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.db.models import F
-from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, SettlementData, MarketingCalendar, MarketingEvent
+from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, SettlementData, MarketingCalendar, MarketingEvent, CrawlingTarget
 from .forms import PerformanceForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.urls import reverse
+from django.views.decorators.http import require_POST, require_http_methods
+from django.core.exceptions import PermissionDenied
 import json
 
 def index(request):
@@ -384,3 +386,53 @@ def marketing_event_delete(request, pk, event_pk):
     messages.success(request, '일정이 삭제되었습니다.')
     
     return redirect('data_analysis:marketing_calendar', pk=pk)
+
+@login_required
+def add_crawling_target(request, performance_id):
+    if request.method == 'POST':
+        performance = get_object_or_404(Performance, id=performance_id)
+        target = CrawlingTarget.objects.create(
+            performance=performance,
+            platform=request.POST['platform'],
+            url=request.POST['url'],
+            is_active=request.POST.get('is_active', False) == 'on'
+        )
+        return redirect('data_analysis:performance_detail', pk=performance_id)
+    return JsonResponse({'status': 'error', 'message': '잘못된 요청입니다.'})
+
+@login_required
+def get_crawling_target(request, target_id):
+    target = get_object_or_404(CrawlingTarget, id=target_id)
+    return JsonResponse({
+        'platform': target.platform,
+        'url': target.url,
+        'is_active': target.is_active,
+    })
+
+@login_required
+@require_POST
+def update_crawling_target(request, target_id):
+    target = get_object_or_404(CrawlingTarget, id=target_id)
+    target.platform = request.POST['platform']
+    target.url = request.POST['url']
+    target.is_active = request.POST.get('is_active', False) == 'on'
+    target.save()
+    return redirect('data_analysis:performance_detail', pk=target.performance.id)
+
+@login_required
+@require_POST
+def delete_crawling_target(request, target_id):
+    """크롤링 대상을 삭제합니다."""
+    target = get_object_or_404(CrawlingTarget, id=target_id)
+    performance_id = target.performance.id
+    target.delete()
+    return JsonResponse({'status': 'success'})
+
+@login_required
+@require_POST
+def toggle_crawling_target(request, target_id):
+    """크롤링 대상의 활성화 상태를 토글합니다."""
+    target = get_object_or_404(CrawlingTarget, id=target_id)
+    target.is_active = not target.is_active
+    target.save()
+    return JsonResponse({'status': 'success', 'is_active': target.is_active})

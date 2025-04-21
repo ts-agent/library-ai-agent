@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Performance, SeatGrade, Actor, Casting, Review
+from .models import Performance, SeatGrade, Actor, Casting, Review, CrawlingTarget
 
 class SeatGradeInline(admin.TabularInline):
     model = SeatGrade
@@ -48,3 +48,12 @@ class ReviewAdmin(admin.ModelAdmin):
     ordering = ['-created_at']
     readonly_fields = ['views', 'likes', 'created_at']
     list_per_page = 20
+
+@admin.register(CrawlingTarget)
+class CrawlingTargetAdmin(admin.ModelAdmin):
+    list_display = ['performance', 'platform', 'url', 'is_active', 'last_crawled_at']
+    list_filter = ['is_active', 'platform', 'performance']
+    search_fields = ['performance__name', 'url']
+    readonly_fields = ['created_at', 'updated_at', 'last_crawled_at']
+    ordering = ['-created_at']
+    raw_id_fields = ['performance']

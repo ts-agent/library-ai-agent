@@ -57,4 +57,11 @@ urlpatterns = [
     path('performances/<int:pk>/marketing-calendar/events/create/', views.marketing_event_create, name='marketing_event_create'),
     path('performances/<int:pk>/marketing-calendar/events/<int:event_pk>/update/', views.marketing_event_update, name='marketing_event_update'),
     path('performances/<int:pk>/marketing-calendar/events/<int:event_pk>/delete/', views.marketing_event_delete, name='marketing_event_delete'),
+
+    # 크롤링 설정 관리
+    path('crawling/<int:performance_id>/add/', views.add_crawling_target, name='add_crawling_target'),
+    path('crawling/<int:target_id>/', views.get_crawling_target, name='get_crawling_target'),
+    path('crawling/<int:target_id>/update/', views.update_crawling_target, name='update_crawling_target'),
+    path('crawling/<int:target_id>/delete/', views.delete_crawling_target, name='delete_crawling_target'),
+    path('crawling/<int:target_id>/toggle/', views.toggle_crawling_target, name='toggle_crawling_target'),
 ]

@@ -6,12 +6,14 @@
     .calendar {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed;
     }
     .calendar th, .calendar td {
         border: 1px solid #ebebeb;
         padding: 10px;
         vertical-align: top;
         height: 120px;
+        position: relative;
     }
     .calendar th {
         background-color: #f8f8f8;
@@ -35,6 +37,38 @@
         margin-bottom: 2px;
         font-size: 0.9em;
         cursor: pointer;
+        position: relative;
+        z-index: 1;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .calendar .event.start {
+        margin-right: -10px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        padding-right: 15px;
+    }
+    .calendar .event.middle {
+        margin-left: -10px;
+        margin-right: -10px;
+        border-radius: 0;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .calendar .event.end {
+        margin-left: -10px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        padding-left: 15px;
+    }
+    .calendar .event.single {
+        margin: 0;
+        border-radius: 4px;
+        padding: 2px 5px;
     }
     .tag-promotion { background-color: #a8deff; }
     .tag-marketing { background-color: #ff8a8a; }
@@ -299,7 +333,12 @@ function renderCalendar() {
                 if (!allEvents[dateStr]) {
                     allEvents[dateStr] = [];
                 }
-                allEvents[dateStr].push(event);
+                allEvents[dateStr].push({
+                    ...event,
+                    isStart: d.getTime() === start.getTime(),
+                    isEnd: d.getTime() === end.getTime(),
+                    isSingle: start.getTime() === end.getTime()
+                });
             }
         });
     });
@@ -317,14 +356,28 @@ function renderCalendar() {
             <td class="${isOtherMonth ? 'other-month' : ''}" data-date="${dateStr}">
                 <div class="date">${date.getDate()}</div>
                 <div class="events">
-                    ${dayEvents.map(event => `
-                        <div class="event tag-${event.tag}" 
-                             style="background-color: ${event.color}"
-                             data-event-id="${event.id}" 
-                             onclick="editEvent(${event.id})">
-                            ${event.title}
-                        </div>
-                    `).join('')}
+                    ${dayEvents.map(event => {
+                        const classes = ['event'];
+                        if (event.isSingle) {
+                            classes.push('single');
+                        } else if (event.isStart) {
+                            classes.push('start');
+                        } else if (event.isEnd) {
+                            classes.push('end');
+                        } else {
+                            classes.push('middle');
+                        }
+                        classes.push(`tag-${event.tag}`);
+                        
+                        return `
+                            <div class="${classes.join(' ')}" 
+                                 style="background-color: ${event.color}"
+                                 data-event-id="${event.id}" 
+                                 onclick="editEvent(${event.id})">
+                                ${event.isStart || event.isSingle ? event.title : ''}
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             </td>
         `;

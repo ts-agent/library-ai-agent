@@ -2,6 +2,86 @@
 
 {% block title %}AI Data Agent{% endblock %}
 
+{% block extra_css %}
+<style>
+    .stat-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .stat-card .card-body {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        padding: 1.5rem;
+    }
+    .stat-card .icon-wrapper {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1) 0%, rgba(var(--bs-primary-rgb), 0.2) 100%);
+    }
+    .stat-card .bi {
+        color: var(--bs-primary);
+    }
+    .stat-card h2 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--bs-primary);
+    }
+    .recent-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .recent-card .card-header {
+        background: none;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1.25rem 1.5rem;
+    }
+    .recent-card .list-group-item {
+        padding: 1rem 1.5rem;
+        border: none;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+    .recent-card .list-group-item:last-child {
+        border-bottom: none;
+    }
+    .recent-card .list-group-item:hover {
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+        transform: translateX(5px);
+    }
+    .recent-card .btn-outline-primary {
+        border-radius: 8px;
+        padding: 0.375rem 1rem;
+    }
+    .rating-badge {
+        background-color: var(--bs-primary);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+    }
+    .empty-state {
+        padding: 3rem 1.5rem;
+        text-align: center;
+        color: var(--bs-gray-500);
+    }
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--bs-gray-400);
+    }
+</style>
+{% endblock %}
+
 {% block page_title %}대시보드{% endblock %}
 
 {% block content %}
@@ -9,11 +89,11 @@
     <!-- 통계 카드 영역 -->
     <div class="row g-4 mb-4">
         <div class="col-md-6 col-xl-3">
-            <div class="card h-100">
+            <div class="card stat-card h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <i class="bi bi-music-note-beamed fs-2"></i>
+                        <div class="icon-wrapper flex-shrink-0">
+                            <i class="bi bi-music-note-beamed fs-3"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h6 class="card-title mb-1">등록된 공연</h6>
@@ -24,11 +104,11 @@
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
-            <div class="card h-100">
+            <div class="card stat-card h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <i class="bi bi-person fs-2"></i>
+                        <div class="icon-wrapper flex-shrink-0">
+                            <i class="bi bi-person fs-3"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h6 class="card-title mb-1">등록된 배우</h6>
@@ -39,11 +119,11 @@
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
-            <div class="card h-100">
+            <div class="card stat-card h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <i class="bi bi-ticket-perforated fs-2"></i>
+                        <div class="icon-wrapper flex-shrink-0">
+                            <i class="bi bi-ticket-perforated fs-3"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h6 class="card-title mb-1">등록된 좌석 등급</h6>
@@ -54,11 +134,11 @@
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
-            <div class="card h-100">
+            <div class="card stat-card h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <i class="bi bi-star fs-2"></i>
+                        <div class="icon-wrapper flex-shrink-0">
+                            <i class="bi bi-star fs-3"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h6 class="card-title mb-1">등록된 리뷰</h6>
@@ -74,28 +154,38 @@
     <div class="row g-4">
         <!-- 최근 공연 -->
         <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">최근 등록된 공연</h5>
-                    <a href="{% url 'data_analysis:performance_list' %}" class="btn btn-sm btn-outline-primary">
-                        전체보기
-                    </a>
+            <div class="card recent-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">최근 등록된 공연</h5>
+                        <a href="{% url 'data_analysis:performance_list' %}" class="btn btn-sm btn-outline-primary">
+                            전체보기
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if performances %}
                     <div class="list-group list-group-flush">
                         {% for performance in performances|slice:":5" %}
                         <a href="{% url 'data_analysis:performance_detail' performance.id %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ performance.title }}</h6>
-                                <small class="text-muted">{{ performance.created_at|date:"Y.m.d" }}</small>
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ performance.name }}</h6>
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        <small>{{ performance.venue }}</small>
+                                    </div>
+                                </div>
+                                <small class="text-muted ms-2">{{ performance.created_at|date:"Y.m.d" }}</small>
                             </div>
-                            <small class="text-muted">{{ performance.venue }}</small>
                         </a>
                         {% endfor %}
                     </div>
                     {% else %}
-                    <p class="text-center text-muted my-5">등록된 공연이 없습니다.</p>
+                    <div class="empty-state">
+                        <i class="bi bi-music-note-beamed d-block"></i>
+                        <p class="mb-0">등록된 공연이 없습니다.</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -103,29 +193,40 @@
 
         <!-- 최근 리뷰 -->
         <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">최근 등록된 리뷰</h5>
-                    <a href="{% url 'data_analysis:review_list' %}" class="btn btn-sm btn-outline-primary">
-                        전체보기
-                    </a>
+            <div class="card recent-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">최근 등록된 리뷰</h5>
+                        <a href="{% url 'data_analysis:review_list' %}" class="btn btn-sm btn-outline-primary">
+                            전체보기
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if reviews %}
                     <div class="list-group list-group-flush">
                         {% for review in reviews|slice:":5" %}
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ review.performance.title }}</h6>
-                                <small class="text-muted">{{ review.created_at|date:"Y.m.d" }}</small>
+                        <a href="{% url 'data_analysis:review_detail' review.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div>
+                                    <div class="d-flex align-items-center mb-1">
+                                        <h6 class="mb-0">{{ review.performance.name }}</h6>
+                                        <span class="rating-badge ms-2">
+                                            <i class="bi bi-star-fill me-1"></i>{{ review.rating }}
+                                        </span>
+                                    </div>
+                                    <p class="mb-1 text-muted">{{ review.content|truncatechars:50 }}</p>
+                                </div>
+                                <small class="text-muted ms-2">{{ review.created_at|date:"Y.m.d" }}</small>
                             </div>
-                            <p class="mb-1">{{ review.content|truncatechars:50 }}</p>
-                            <small class="text-muted">평점: {{ review.rating }}</small>
                         </a>
                         {% endfor %}
                     </div>
                     {% else %}
-                    <p class="text-center text-muted my-5">등록된 리뷰가 없습니다.</p>
+                    <div class="empty-state">
+                        <i class="bi bi-chat-square-text d-block"></i>
+                        <p class="mb-0">등록된 리뷰가 없습니다.</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>

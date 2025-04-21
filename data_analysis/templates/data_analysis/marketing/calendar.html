@@ -42,6 +42,104 @@
     .tag-event { background-color: #ffdc73; }
     .tag-sns { background-color: #d9a8ff; }
     .tag-other { background-color: #ffc4a8; }
+    .color-swatch {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        vertical-align: middle;
+        margin-left: 8px;
+    }
+    .color-options {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .color-option {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        margin: 4px 0;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .color-option:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    .color-option.selected {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    .color-option input[type="radio"] {
+        margin-right: 12px;
+    }
+    .color-label {
+        flex: 1;
+        margin-right: 12px;
+    }
+    .color-dropdown {
+        position: relative;
+        width: 100%;
+    }
+    .color-selected {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #fff;
+    }
+    .color-selected:hover {
+        background-color: #f8f9fa;
+    }
+    .color-selected .color-swatch {
+        margin-right: 8px;
+    }
+    .color-selected::after {
+        content: '';
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid #6c757d;
+        margin-left: auto;
+    }
+    .color-options {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 4px;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 1000;
+        list-style: none;
+        padding: 4px 0;
+    }
+    .color-options.show {
+        display: block;
+    }
+    .color-option {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+    .color-option:hover {
+        background-color: #f8f9fa;
+    }
+    .color-swatch {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+    .color-label {
+        flex: 1;
+    }
 </style>
 {% endblock %}
 
@@ -120,25 +218,43 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="eventTag" class="form-label">태그</label>
-                            <select class="form-select" id="eventTag" name="tag" required>
-                                <option value="promotion">프로모션</option>
-                                <option value="marketing">마케팅</option>
-                                <option value="press">언론보도</option>
-                                <option value="event">이벤트</option>
-                                <option value="sns">SNS</option>
-                                <option value="other">기타</option>
-                            </select>
+                            <input type="text" class="form-control" id="eventTag" name="tag" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="eventColor" class="form-label">색상</label>
-                            <select class="form-select" id="eventColor" name="color" required>
-                                <option value="#a8deff">하늘색</option>
-                                <option value="#ff8a8a">빨간색</option>
-                                <option value="#a8ff8f">초록색</option>
-                                <option value="#ffdc73">노란색</option>
-                                <option value="#d9a8ff">보라색</option>
-                                <option value="#ffc4a8">주황색</option>
-                            </select>
+                            <label class="form-label">색상</label>
+                            <input type="hidden" id="eventColor" name="color" value="#a8deff" required>
+                            <div class="color-dropdown">
+                                <div class="color-selected">
+                                    <span class="color-swatch" style="background-color: #a8deff"></span>
+                                    <span class="color-label">하늘색</span>
+                                </div>
+                                <ul class="color-options">
+                                    <li class="color-option" data-color="#a8deff" data-label="하늘색">
+                                        <span class="color-swatch" style="background-color: #a8deff"></span>
+                                        <span class="color-label">하늘색</span>
+                                    </li>
+                                    <li class="color-option" data-color="#ff8a8a" data-label="빨간색">
+                                        <span class="color-swatch" style="background-color: #ff8a8a"></span>
+                                        <span class="color-label">빨간색</span>
+                                    </li>
+                                    <li class="color-option" data-color="#a8ff8f" data-label="초록색">
+                                        <span class="color-swatch" style="background-color: #a8ff8f"></span>
+                                        <span class="color-label">초록색</span>
+                                    </li>
+                                    <li class="color-option" data-color="#ffdc73" data-label="노란색">
+                                        <span class="color-swatch" style="background-color: #ffdc73"></span>
+                                        <span class="color-label">노란색</span>
+                                    </li>
+                                    <li class="color-option" data-color="#d9a8ff" data-label="보라색">
+                                        <span class="color-swatch" style="background-color: #d9a8ff"></span>
+                                        <span class="color-label">보라색</span>
+                                    </li>
+                                    <li class="color-option" data-color="#ffc4a8" data-label="주황색">
+                                        <span class="color-swatch" style="background-color: #ffc4a8"></span>
+                                        <span class="color-label">주황색</span>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -239,11 +355,14 @@ function addEvent() {
     document.getElementById('eventEndDate').value = '';
     document.getElementById('eventTitle').value = '';
     document.getElementById('eventDescription').value = '';
-    document.getElementById('eventTag').value = 'other';
+    document.getElementById('eventTag').value = '';
     document.getElementById('eventColor').value = '#a8deff';
     document.getElementById('deleteEventBtn').style.display = 'none';
     document.getElementById('eventForm').action = "{% url 'data_analysis:marketing_event_create' performance.pk %}";
     new bootstrap.Modal(document.getElementById('eventModal')).show();
+    const selected = document.querySelector('.color-selected');
+    selected.querySelector('.color-swatch').style.backgroundColor = '#a8deff';
+    selected.querySelector('.color-label').textContent = '하늘색';
 }
 
 function editEvent(eventId) {
@@ -263,6 +382,13 @@ function editEvent(eventId) {
     document.getElementById('eventForm').action = "{% url 'data_analysis:marketing_event_update' performance.pk 0 %}".replace('0', event.id);
     
     new bootstrap.Modal(document.getElementById('eventModal')).show();
+    const selected = document.querySelector('.color-selected');
+    const option = document.querySelector(`.color-option[data-color="${event.color}"]`);
+    
+    if (option) {
+        selected.querySelector('.color-swatch').style.backgroundColor = event.color;
+        selected.querySelector('.color-label').textContent = option.dataset.label;
+    }
 }
 
 document.getElementById('deleteEventBtn').onclick = function() {
@@ -273,6 +399,32 @@ document.getElementById('deleteEventBtn').onclick = function() {
         window.location.href = deleteUrl;
     }
 };
+
+document.addEventListener('click', function(e) {
+    const colorDropdown = document.querySelector('.color-dropdown');
+    const colorOptions = document.querySelector('.color-options');
+    
+    if (!colorDropdown.contains(e.target)) {
+        colorOptions.classList.remove('show');
+    }
+});
+
+document.querySelector('.color-selected').addEventListener('click', function() {
+    document.querySelector('.color-options').classList.toggle('show');
+});
+
+document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', function() {
+        const color = this.dataset.color;
+        const label = this.dataset.label;
+        const selected = document.querySelector('.color-selected');
+        
+        document.getElementById('eventColor').value = color;
+        selected.querySelector('.color-swatch').style.backgroundColor = color;
+        selected.querySelector('.color-label').textContent = label;
+        document.querySelector('.color-options').classList.remove('show');
+    });
+});
 
 renderCalendar();
 </script>

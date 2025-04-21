@@ -8,7 +8,7 @@ class Performance(models.Model):
     start_date = models.DateField(verbose_name='공연 시작일')
     end_date = models.DateField(verbose_name='공연 종료일')
     age_limit = models.CharField(max_length=50, verbose_name='관람연령')
-    running_time = models.CharField(max_length=50, verbose_name='공연시간', help_text='예: 150분, 2시간 30분', default='미정')
+    running_time = models.CharField(max_length=50, verbose_name='공연시간', default='')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='등록일')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
 
@@ -168,24 +168,6 @@ class MarketingCalendar(models.Model):
 
 class MarketingEvent(models.Model):
     """마케팅 캘린더의 일정"""
-    TAG_CHOICES = [
-        ('promotion', '프로모션'),
-        ('marketing', '마케팅'),
-        ('press', '언론보도'),
-        ('event', '이벤트'),
-        ('sns', 'SNS'),
-        ('other', '기타'),
-    ]
-
-    COLOR_CHOICES = [
-        ('#a8deff', '하늘색'),
-        ('#ff8a8a', '빨간색'),
-        ('#a8ff8f', '초록색'),
-        ('#ffdc73', '노란색'),
-        ('#d9a8ff', '보라색'),
-        ('#ffc4a8', '주황색'),
-    ]
-
     calendar = models.ForeignKey(
         MarketingCalendar,
         on_delete=models.CASCADE,
@@ -198,15 +180,12 @@ class MarketingEvent(models.Model):
     description = models.TextField(verbose_name='내용')
     tag = models.CharField(
         max_length=20,
-        choices=TAG_CHOICES,
-        default='other',
         verbose_name='태그'
     )
     color = models.CharField(
         max_length=7,
-        choices=COLOR_CHOICES,
-        default='#a8deff',
-        verbose_name='색상'
+        verbose_name='색상',
+        help_text='색상 코드 (예: #FF0000)'
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')

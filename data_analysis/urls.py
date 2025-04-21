@@ -50,4 +50,11 @@ urlpatterns = [
     # 정산서 데이터
     path('performances/<int:pk>/settlement-data/upload/', views.settlement_data_upload, name='settlement_data_upload'),
     path('settlement-data/<int:pk>/delete/', views.settlement_data_delete, name='settlement_data_delete'),
+
+    # 마케팅 캘린더
+    path('performances/<int:pk>/marketing-calendar/', views.marketing_calendar, name='marketing_calendar'),
+    path('performances/<int:pk>/marketing-calendar/settings/', views.marketing_calendar_settings, name='marketing_calendar_settings'),
+    path('performances/<int:pk>/marketing-calendar/events/create/', views.marketing_event_create, name='marketing_event_create'),
+    path('performances/<int:pk>/marketing-calendar/events/<int:event_pk>/update/', views.marketing_event_update, name='marketing_event_update'),
+    path('performances/<int:pk>/marketing-calendar/events/<int:event_pk>/delete/', views.marketing_event_delete, name='marketing_event_delete'),
 ]

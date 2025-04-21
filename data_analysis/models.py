@@ -133,3 +133,76 @@ class SettlementData(models.Model):
 
     def __str__(self):
         return f"{self.performance.name} - 정산서 ({self.uploaded_at.strftime('%Y-%m-%d')})"
+
+class MarketingCalendar(models.Model):
+    """공연의 마케팅 캘린더"""
+    performance = models.OneToOneField(
+        'Performance',
+        on_delete=models.CASCADE,
+        related_name='marketing_calendar',
+        verbose_name='공연'
+    )
+    start_date = models.DateField(verbose_name='시작일')
+    end_date = models.DateField(verbose_name='종료일')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
+
+    class Meta:
+        verbose_name = '마케팅 캘린더'
+        verbose_name_plural = '마케팅 캘린더'
+
+    def __str__(self):
+        return f"{self.performance.name} 마케팅 캘린더"
+
+class MarketingEvent(models.Model):
+    """마케팅 캘린더의 일정"""
+    TAG_CHOICES = [
+        ('promotion', '프로모션'),
+        ('marketing', '마케팅'),
+        ('press', '언론보도'),
+        ('event', '이벤트'),
+        ('sns', 'SNS'),
+        ('other', '기타'),
+    ]
+
+    COLOR_CHOICES = [
+        ('#a8deff', '하늘색'),
+        ('#ff8a8a', '빨간색'),
+        ('#a8ff8f', '초록색'),
+        ('#ffdc73', '노란색'),
+        ('#d9a8ff', '보라색'),
+        ('#ffc4a8', '주황색'),
+    ]
+
+    calendar = models.ForeignKey(
+        MarketingCalendar,
+        on_delete=models.CASCADE,
+        related_name='events',
+        verbose_name='마케팅 캘린더'
+    )
+    start_date = models.DateField(verbose_name='시작일')
+    end_date = models.DateField(verbose_name='종료일')
+    title = models.CharField(max_length=200, verbose_name='제목')
+    description = models.TextField(verbose_name='내용')
+    tag = models.CharField(
+        max_length=20,
+        choices=TAG_CHOICES,
+        default='other',
+        verbose_name='태그'
+    )
+    color = models.CharField(
+        max_length=7,
+        choices=COLOR_CHOICES,
+        default='#a8deff',
+        verbose_name='색상'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='생성일')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
+
+    class Meta:
+        verbose_name = '마케팅 일정'
+        verbose_name_plural = '마케팅 일정'
+        ordering = ['start_date']
+
+    def __str__(self):
+        return f"{self.calendar.performance.name} - {self.start_date}: {self.title}"

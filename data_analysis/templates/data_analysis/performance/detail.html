@@ -204,6 +204,56 @@
                 <i class="bi bi-chat-dots"></i> 전체보기
             </a>
         </div>
+
+        {% if review_stats %}
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="card-subtitle">평균 평점</h6>
+                            <span class="h4 mb-0 text-warning">
+                                {{ review_stats.average_rating }}
+                                <small class="text-muted">/5</small>
+                            </span>
+                        </div>
+                        <div class="text-muted small">
+                            총 {{ review_stats.total }}개의 리뷰
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-3">감정 분석</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="text-success">긍정적 ({{ review_stats.positive.count }})</div>
+                            <div>{{ review_stats.positive.percentage }}%</div>
+                        </div>
+                        <div class="progress mb-3" style="height: 5px">
+                            <div class="progress-bar bg-success" style="width: {{ review_stats.positive.percentage }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="text-secondary">중립적 ({{ review_stats.neutral.count }})</div>
+                            <div>{{ review_stats.neutral.percentage }}%</div>
+                        </div>
+                        <div class="progress mb-3" style="height: 5px">
+                            <div class="progress-bar bg-secondary" style="width: {{ review_stats.neutral.percentage }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="text-danger">부정적 ({{ review_stats.negative.count }})</div>
+                            <div>{{ review_stats.negative.percentage }}%</div>
+                        </div>
+                        <div class="progress" style="height: 5px">
+                            <div class="progress-bar bg-danger" style="width: {{ review_stats.negative.percentage }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="table-responsive">
             <table class="table table-sm">
                 <thead>
@@ -211,6 +261,7 @@
                         <th style="width: 15%">작성자</th>
                         <th>제목</th>
                         <th style="width: 10%" class="text-center">평점</th>
+                        <th style="width: 10%" class="text-center">감정</th>
                         <th style="width: 15%" class="text-end">작성일</th>
                     </tr>
                 </thead>
@@ -223,12 +274,23 @@
                                 {{ review.title }}
                             </a>
                         </td>
-                        <td class="text-center">{{ review.rating }}</td>
+                        <td class="text-center">
+                            <span class="text-warning">
+                                {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge {% if review.sentiment == 'positive' %}bg-success{% elif review.sentiment == 'negative' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ review.get_sentiment_display }}
+                            </span>
+                        </td>
                         <td class="text-end" style="white-space: nowrap;">{{ review.created_at|date:"Y.m.d" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center">등록된 관람후기가 없습니다.</td>
+                        <td colspan="5" class="text-center">등록된 관람후기가 없습니다.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

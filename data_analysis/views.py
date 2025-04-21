@@ -33,6 +33,36 @@ class PerformanceDetailView(DetailView):
     template_name = 'data_analysis/performance/detail.html'
     context_object_name = 'performance'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reviews = self.object.reviews.all()
+        total_reviews = reviews.count()
+        
+        if total_reviews > 0:
+            # 감정 분석 통계
+            positive_count = reviews.filter(sentiment='positive').count()
+            negative_count = reviews.filter(sentiment='negative').count()
+            neutral_count = reviews.filter(sentiment='neutral').count()
+            
+            context['review_stats'] = {
+                'total': total_reviews,
+                'positive': {
+                    'count': positive_count,
+                    'percentage': round(positive_count / total_reviews * 100)
+                },
+                'negative': {
+                    'count': negative_count,
+                    'percentage': round(negative_count / total_reviews * 100)
+                },
+                'neutral': {
+                    'count': neutral_count,
+                    'percentage': round(neutral_count / total_reviews * 100)
+                },
+                'average_rating': round(sum(review.rating for review in reviews) / total_reviews, 1)
+            }
+        
+        return context
+
 class PerformanceCreateView(CreateView):
     model = Performance
     form_class = PerformanceForm
@@ -150,13 +180,13 @@ class ReviewDetailView(DetailView):
 class ReviewCreateView(CreateView):
     model = Review
     template_name = 'data_analysis/review/form.html'
-    fields = ['performance', 'title', 'content', 'rating', 'nickname']
+    fields = ['performance', 'title', 'content', 'rating', 'nickname', 'sentiment']
     success_url = reverse_lazy('data_analysis:review_list')
 
 class ReviewUpdateView(UpdateView):
     model = Review
     template_name = 'data_analysis/review/form.html'
-    fields = ['title', 'content', 'rating']
+    fields = ['title', 'content', 'rating', 'sentiment']
     success_url = reverse_lazy('data_analysis:review_list')
 
 class ReviewDeleteView(DeleteView):

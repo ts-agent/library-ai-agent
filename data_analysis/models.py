@@ -80,6 +80,12 @@ class Casting(models.Model):
 
 class Review(models.Model):
     """공연 리뷰 정보를 저장하는 모델"""
+    SENTIMENT_CHOICES = [
+        ('positive', '긍정'),
+        ('neutral', '중립'),
+        ('negative', '부정'),
+    ]
+
     performance = models.ForeignKey(
         Performance,
         on_delete=models.CASCADE,
@@ -94,6 +100,12 @@ class Review(models.Model):
     content = models.TextField(verbose_name='리뷰 내용')
     nickname = models.CharField(max_length=50, verbose_name='닉네임')
     is_verified = models.BooleanField(default=False, verbose_name='예매자 인증 여부')
+    sentiment = models.CharField(
+        max_length=10,
+        choices=SENTIMENT_CHOICES,
+        default='neutral',
+        verbose_name='감정 분석'
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='작성일')
     views = models.PositiveIntegerField(default=0, verbose_name='조회수')
     likes = models.PositiveIntegerField(default=0, verbose_name='공감수')

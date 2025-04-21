@@ -1,0 +1,28 @@
+runtime: python311
+service: default
+instance_class: F1
+
+entrypoint: >
+  python manage.py migrate &&
+  gunicorn -b :$PORT ai_agent.wsgi:application --log-level debug
+
+env_variables:
+  DJANGO_SETTINGS_MODULE: "ai_agent.settings"
+  PYTHONPATH: "/app"
+
+# .env 파일에서 환경 변수 로드
+includes:
+  - .env
+
+# Cloud SQL 인스턴스 연결 설정
+beta_settings:
+  cloud_sql_instances: library-ai-agent-kr:asia-northeast3:library-ai-db
+
+handlers:
+- url: /static
+  static_dir: static/
+  secure: always
+
+- url: /.*
+  script: auto
+  secure: always 

@@ -4,6 +4,9 @@
 {% block crud_title %}
 {{ performance.name }}
 <div class="float-end">
+    <a href="{% url 'data_analysis:marketing_calendar' performance.pk %}" class="btn btn-outline-primary">
+        <i class="bi bi-calendar-event"></i> 마케팅 캘린더
+    </a>
     <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-primary">
         <i class="bi bi-pencil"></i> 수정
     </a>
@@ -14,50 +17,119 @@
 {% endblock %}
 
 {% block crud_content %}
-<div class="card mb-4">
-    <div class="card-body">
-        <h5 class="card-title">공연 정보</h5>
-        <dl class="row">
-            <dt class="col-sm-3">공연장소</dt>
-            <dd class="col-sm-9">{{ performance.venue }}</dd>
+<!-- 기본 정보 섹션 -->
+<div class="row mb-4">
+    <!-- 공연 정보 -->
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-4">공연 정보</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">공연장소</dt>
+                    <dd class="col-sm-9">{{ performance.venue }}</dd>
 
-            <dt class="col-sm-3">공연기간</dt>
-            <dd class="col-sm-9">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</dd>
+                    <dt class="col-sm-3">공연기간</dt>
+                    <dd class="col-sm-9">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</dd>
 
-            <dt class="col-sm-3">공연시간</dt>
-            <dd class="col-sm-9">{{ performance.running_time }}</dd>
+                    <dt class="col-sm-3">공연시간</dt>
+                    <dd class="col-sm-9">{{ performance.running_time }}</dd>
 
-            <dt class="col-sm-3">관람연령</dt>
-            <dd class="col-sm-9">{{ performance.age_limit }}</dd>
-        </dl>
+                    <dt class="col-sm-3">관람연령</dt>
+                    <dd class="col-sm-9 mb-0">{{ performance.age_limit }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 캐스팅 정보 -->
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-4">캐스팅 정보</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%">배우</th>
+                                <th>역할</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for casting in performance.castings.all %}
+                            <tr>
+                                <td>{{ casting.actor.name }}</td>
+                                <td>{{ casting.role_name }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center">등록된 캐스팅 정보가 없습니다.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 좌석 등급 -->
+    <div class="col-md-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-4">좌석 등급</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>등급</th>
+                                <th class="text-end">가격</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for grade in performance.seat_grades.all %}
+                            <tr>
+                                <td>{{ grade.name }}</td>
+                                <td class="text-end">{{ grade.price|intcomma }}원</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center">등록된 좌석 등급이 없습니다.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- 데이터 관리 -->
 <div class="row mb-4">
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="card-title mb-0">판매현황 데이터</h5>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadSalesModal">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadSalesModal">
                         <i class="bi bi-upload"></i> 업로드
                     </button>
                 </div>
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th>업로드 일시</th>
                                 <th>설명</th>
-                                <th>관리</th>
+                                <th class="text-end">관리</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for data in performance.sales_data.all %}
                             <tr>
-                                <td>{{ data.uploaded_at|date:"Y.m.d H:i" }}</td>
+                                <td style="white-space: nowrap;">{{ data.uploaded_at|date:"Y.m.d H:i" }}</td>
                                 <td>{{ data.description }}</td>
-                                <td>
+                                <td class="text-end" style="white-space: nowrap;">
                                     <a href="{{ data.file.url }}" class="btn btn-sm btn-outline-primary" download>
                                         <i class="bi bi-download"></i>
                                     </a>
@@ -83,25 +155,25 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="card-title mb-0">정산서 데이터</h5>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadSettlementModal">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadSettlementModal">
                         <i class="bi bi-upload"></i> 업로드
                     </button>
                 </div>
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th>업로드 일시</th>
                                 <th>설명</th>
-                                <th>관리</th>
+                                <th class="text-end">관리</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for data in performance.settlement_data.all %}
                             <tr>
-                                <td>{{ data.uploaded_at|date:"Y.m.d H:i" }}</td>
+                                <td style="white-space: nowrap;">{{ data.uploaded_at|date:"Y.m.d H:i" }}</td>
                                 <td>{{ data.description }}</td>
-                                <td>
+                                <td class="text-end" style="white-space: nowrap;">
                                     <a href="{{ data.file.url }}" class="btn btn-sm btn-outline-primary" download>
                                         <i class="bi bi-download"></i>
                                     </a>
@@ -123,26 +195,40 @@
     </div>
 </div>
 
+<!-- 리뷰 섹션 -->
 <div class="card mb-4">
     <div class="card-body">
-        <h5 class="card-title">좌석 등급</h5>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title mb-0">관람후기</h5>
+            <a href="{% url 'data_analysis:performance_review_list' performance.pk %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-chat-dots"></i> 전체보기
+            </a>
+        </div>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th>등급</th>
-                        <th>가격</th>
+                        <th style="width: 15%">작성자</th>
+                        <th>제목</th>
+                        <th style="width: 10%" class="text-center">평점</th>
+                        <th style="width: 15%" class="text-end">작성일</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for grade in performance.seat_grades.all %}
+                    {% for review in performance.reviews.all|slice:":5" %}
                     <tr>
-                        <td>{{ grade.name }}</td>
-                        <td>{{ grade.price|intcomma }}원</td>
+                        <td>{{ review.nickname }}</td>
+                        <td>
+                            <a href="{% url 'data_analysis:review_detail' review.pk %}" class="text-decoration-none">
+                                {{ review.title }}
+                            </a>
+                        </td>
+                        <td class="text-center">{{ review.rating }}</td>
+                        <td class="text-end" style="white-space: nowrap;">{{ review.created_at|date:"Y.m.d" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="2" class="text-center">등록된 좌석 등급이 없습니다.</td>
+                        <td colspan="4" class="text-center">등록된 관람후기가 없습니다.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -151,34 +237,7 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">캐스팅 정보</h5>
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>배우</th>
-                        <th>역할</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for casting in performance.castings.all %}
-                    <tr>
-                        <td>{{ casting.actor.name }}</td>
-                        <td>{{ casting.role_name }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="2" class="text-center">등록된 캐스팅 정보가 없습니다.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
+<!-- 업로드 모달 -->
 <div class="modal fade" id="uploadSalesModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">

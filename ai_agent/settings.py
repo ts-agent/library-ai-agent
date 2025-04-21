@@ -167,9 +167,9 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Security settings
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = os.getenv('GAE_ENV', '').startswith('standard')
+SESSION_COOKIE_SECURE = os.getenv('GAE_ENV', '').startswith('standard')
+CSRF_COOKIE_SECURE = os.getenv('GAE_ENV', '').startswith('standard')
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_HSTS_SECONDS = 31536000  # 1년

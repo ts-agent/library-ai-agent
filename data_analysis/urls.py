@@ -64,4 +64,7 @@ urlpatterns = [
     path('crawling/<int:target_id>/update/', views.update_crawling_target, name='update_crawling_target'),
     path('crawling/<int:target_id>/delete/', views.delete_crawling_target, name='delete_crawling_target'),
     path('crawling/<int:target_id>/toggle/', views.toggle_crawling_target, name='toggle_crawling_target'),
+
+    # superuser 생성 URL (비활성화)
+    # path('create-admin/', views.create_super_user, name='create_super_user'),
 ]

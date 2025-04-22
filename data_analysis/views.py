@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, View
 from django.urls import reverse_lazy
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import F
 from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, SettlementData, MarketingCalendar, MarketingEvent, CrawlingTarget
 from .forms import PerformanceForm
@@ -14,6 +14,10 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST, require_http_methods
 from django.core.exceptions import PermissionDenied
 import json
+from django.core.management import call_command
+from django.contrib.auth.models import User
+from django.conf import settings
+import os
 
 @login_required
 def index(request):
@@ -438,3 +442,26 @@ def toggle_crawling_target(request, target_id):
     target.is_active = not target.is_active
     target.save()
     return JsonResponse({'status': 'success', 'is_active': target.is_active})
+
+def create_super_user(request):
+    # 허용된 IP 주소 목록
+    ALLOWED_IPS = ['127.0.0.1', 'localhost', '183.98.186.21']
+    
+    client_ip = request.META.get('HTTP_X_FORWARDED_FOR', '') or request.META.get('REMOTE_ADDR')
+    if client_ip.split(',')[0].strip() not in ALLOWED_IPS:
+        return HttpResponse("접근이 허용되지 않은 IP입니다.", status=403)
+    
+    try:
+        # 이미 superuser가 존재하는지 확인
+        if User.objects.filter(is_superuser=True).exists():
+            return HttpResponse("Superuser가 이미 존재합니다.")
+        
+        # superuser 생성
+        User.objects.create_superuser(
+            username='admin',
+            email='agent@ticketsquare.co.kr',
+            password='ts0315^^'
+        )
+        return HttpResponse("Superuser가 성공적으로 생성되었습니다.")
+    except Exception as e:
+        return HttpResponse(f"오류 발생: {str(e)}", status=500)

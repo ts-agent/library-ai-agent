@@ -24,6 +24,7 @@ env_variables:
   DB_NAME: "library_ai_db"
   DB_USER: "postgres"
   DB_PASSWORD: "Library@AI2025!"
+  DEBUG: "True"
 
 # .env 파일에서 환경 변수 로드
 includes:

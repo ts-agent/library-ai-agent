@@ -113,8 +113,12 @@ else:
     # 로컬 개발 환경
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'library_ai_db',
+            'USER': 'postgres',
+            'PASSWORD': 'Library@AI2025!',
+            'HOST': 'localhost',
+            'PORT': '5432',
         }
     }
 

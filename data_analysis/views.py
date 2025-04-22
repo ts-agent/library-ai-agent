@@ -7,6 +7,7 @@ from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, S
 from .forms import PerformanceForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.urls import reverse
@@ -14,6 +15,7 @@ from django.views.decorators.http import require_POST, require_http_methods
 from django.core.exceptions import PermissionDenied
 import json
 
+@login_required
 def index(request):
     context = {
         'performances': Performance.objects.all(),
@@ -24,13 +26,13 @@ def index(request):
     return render(request, 'data_analysis/index.html', context)
 
 # Performance Views
-class PerformanceListView(ListView):
+class PerformanceListView(LoginRequiredMixin, ListView):
     model = Performance
     template_name = 'data_analysis/performance/list.html'
     context_object_name = 'performances'
     ordering = ['-start_date']
 
-class PerformanceDetailView(DetailView):
+class PerformanceDetailView(LoginRequiredMixin, DetailView):
     model = Performance
     template_name = 'data_analysis/performance/detail.html'
     context_object_name = 'performance'
@@ -65,109 +67,109 @@ class PerformanceDetailView(DetailView):
         
         return context
 
-class PerformanceCreateView(CreateView):
+class PerformanceCreateView(LoginRequiredMixin, CreateView):
     model = Performance
     form_class = PerformanceForm
     template_name = 'data_analysis/performance/form.html'
     success_url = reverse_lazy('data_analysis:performance_list')
 
-class PerformanceUpdateView(UpdateView):
+class PerformanceUpdateView(LoginRequiredMixin, UpdateView):
     model = Performance
     form_class = PerformanceForm
     template_name = 'data_analysis/performance/form.html'
     success_url = reverse_lazy('data_analysis:performance_list')
 
-class PerformanceDeleteView(DeleteView):
+class PerformanceDeleteView(LoginRequiredMixin, DeleteView):
     model = Performance
     template_name = 'data_analysis/performance/confirm_delete.html'
     success_url = reverse_lazy('data_analysis:performance_list')
 
 # Actor Views
-class ActorListView(ListView):
+class ActorListView(LoginRequiredMixin, ListView):
     model = Actor
     template_name = 'data_analysis/actor/list.html'
     context_object_name = 'actors'
     ordering = ['name']
 
-class ActorDetailView(DetailView):
+class ActorDetailView(LoginRequiredMixin, DetailView):
     model = Actor
     template_name = 'data_analysis/actor/detail.html'
     context_object_name = 'actor'
 
-class ActorCreateView(CreateView):
+class ActorCreateView(LoginRequiredMixin, CreateView):
     model = Actor
     template_name = 'data_analysis/actor/form.html'
     fields = ['name']
     success_url = reverse_lazy('data_analysis:actor_list')
 
-class ActorUpdateView(UpdateView):
+class ActorUpdateView(LoginRequiredMixin, UpdateView):
     model = Actor
     template_name = 'data_analysis/actor/form.html'
     fields = ['name']
     success_url = reverse_lazy('data_analysis:actor_list')
 
-class ActorDeleteView(DeleteView):
+class ActorDeleteView(LoginRequiredMixin, DeleteView):
     model = Actor
     template_name = 'data_analysis/actor/confirm_delete.html'
     success_url = reverse_lazy('data_analysis:actor_list')
 
 # SeatGrade Views
-class SeatGradeListView(ListView):
+class SeatGradeListView(LoginRequiredMixin, ListView):
     model = SeatGrade
     template_name = 'data_analysis/seatgrade/list.html'
     context_object_name = 'seatgrades'
     ordering = ['performance', 'price']
 
-class SeatGradeCreateView(CreateView):
+class SeatGradeCreateView(LoginRequiredMixin, CreateView):
     model = SeatGrade
     template_name = 'data_analysis/seatgrade/form.html'
     fields = ['performance', 'name', 'price']
     success_url = reverse_lazy('data_analysis:seatgrade_list')
 
-class SeatGradeUpdateView(UpdateView):
+class SeatGradeUpdateView(LoginRequiredMixin, UpdateView):
     model = SeatGrade
     template_name = 'data_analysis/seatgrade/form.html'
     fields = ['performance', 'name', 'price']
     success_url = reverse_lazy('data_analysis:seatgrade_list')
 
-class SeatGradeDeleteView(DeleteView):
+class SeatGradeDeleteView(LoginRequiredMixin, DeleteView):
     model = SeatGrade
     template_name = 'data_analysis/seatgrade/confirm_delete.html'
     success_url = reverse_lazy('data_analysis:seatgrade_list')
 
 # Casting Views
-class CastingListView(ListView):
+class CastingListView(LoginRequiredMixin, ListView):
     model = Casting
     template_name = 'data_analysis/casting/list.html'
     context_object_name = 'castings'
     ordering = ['performance', 'actor']
 
-class CastingCreateView(CreateView):
+class CastingCreateView(LoginRequiredMixin, CreateView):
     model = Casting
     template_name = 'data_analysis/casting/form.html'
     fields = ['performance', 'actor', 'role_name']
     success_url = reverse_lazy('data_analysis:casting_list')
 
-class CastingUpdateView(UpdateView):
+class CastingUpdateView(LoginRequiredMixin, UpdateView):
     model = Casting
     template_name = 'data_analysis/casting/form.html'
     fields = ['performance', 'actor', 'role_name']
     success_url = reverse_lazy('data_analysis:casting_list')
 
-class CastingDeleteView(DeleteView):
+class CastingDeleteView(LoginRequiredMixin, DeleteView):
     model = Casting
     template_name = 'data_analysis/casting/confirm_delete.html'
     success_url = reverse_lazy('data_analysis:casting_list')
 
 # Review Views
-class ReviewListView(ListView):
+class ReviewListView(LoginRequiredMixin, ListView):
     model = Review
     template_name = 'data_analysis/review/list.html'
     context_object_name = 'reviews'
     ordering = ['-created_at']
     paginate_by = 10
 
-class ReviewDetailView(DetailView):
+class ReviewDetailView(LoginRequiredMixin, DetailView):
     model = Review
     template_name = 'data_analysis/review/detail.html'
     context_object_name = 'review'
@@ -179,24 +181,24 @@ class ReviewDetailView(DetailView):
         obj.save()
         return obj
 
-class ReviewCreateView(CreateView):
+class ReviewCreateView(LoginRequiredMixin, CreateView):
     model = Review
     template_name = 'data_analysis/review/form.html'
     fields = ['performance', 'title', 'content', 'rating', 'nickname', 'sentiment']
     success_url = reverse_lazy('data_analysis:review_list')
 
-class ReviewUpdateView(UpdateView):
+class ReviewUpdateView(LoginRequiredMixin, UpdateView):
     model = Review
     template_name = 'data_analysis/review/form.html'
     fields = ['title', 'content', 'rating', 'sentiment']
     success_url = reverse_lazy('data_analysis:review_list')
 
-class ReviewDeleteView(DeleteView):
+class ReviewDeleteView(LoginRequiredMixin, DeleteView):
     model = Review
     template_name = 'data_analysis/review/confirm_delete.html'
     success_url = reverse_lazy('data_analysis:review_list')
 
-class PerformanceReviewListView(ListView):
+class PerformanceReviewListView(LoginRequiredMixin, ListView):
     model = Review
     template_name = 'data_analysis/review/performance_reviews.html'
     context_object_name = 'reviews'

@@ -176,6 +176,10 @@ SECURE_HSTS_SECONDS = 31536000  # 1년
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
+# 로그인/로그아웃 설정
+LOGIN_REDIRECT_URL = '/data_analysis/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
 # Google Cloud Storage 설정
 GS_BUCKET_NAME = 'library-ai-agent-storage'  # 실제 버킷 이름으로 변경 필요
 GS_PROJECT_ID = 'library-ai-agent-kr'

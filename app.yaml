@@ -23,7 +23,7 @@ env_variables:
   DB_HOST: "/cloudsql/library-ai-agent-kr:asia-northeast3:library-ai-db"
   DB_NAME: "library_ai_db"
   DB_USER: "postgres"
-  DB_PASSWORD: "Library@AI2024!"
+  DB_PASSWORD: "Library@AI2025!"
 
 # .env 파일에서 환경 변수 로드
 includes:

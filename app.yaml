@@ -7,8 +7,6 @@ entrypoint: gunicorn -b :$PORT ai_agent.wsgi:application --log-level info
 # 자동 스케일링 설정
 automatic_scaling:
   target_cpu_utilization: 0.65
-  min_instances: 1
-  max_instances: 10
   target_throughput_utilization: 0.6
 
 # 리소스 설정
@@ -24,7 +22,9 @@ env_variables:
   DB_NAME: "library_ai_db"
   DB_USER: "postgres"
   DB_PASSWORD: "Library@AI2025!"
-  DEBUG: "True"
+  GOOGLE_CLOUD_PROJECT: "library-ai-agent-kr"
+  GS_BUCKET_NAME: "library-ai-agent-storage"
+  GS_PROJECT_ID: "library-ai-agent-kr"
 
 # .env 파일에서 환경 변수 로드
 includes:

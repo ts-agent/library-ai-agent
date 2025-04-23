@@ -1,0 +1,328 @@
+{% extends 'data_analysis/base.html' %}
+{% load humanize %}
+
+{% block title %}콘서트 대시보드{% endblock %}
+
+{% block page_title %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="h3 mb-0">콘서트 대시보드</h1>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .genre-nav {
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    .genre-nav .nav-link {
+        color: #858796;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .genre-nav .nav-link:hover,
+    .genre-nav .nav-link.active {
+        color: #4e73df;
+        border-bottom-color: #4e73df;
+    }
+    
+    .stats-card {
+        transition: transform 0.2s;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .performance-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s, transform 0.5s;
+    }
+    
+    .performance-item.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 장르 네비게이션 -->
+<ul class="nav genre-nav">
+    <li class="nav-item">
+        <a class="nav-link active" href="{% url 'concert_dashboard' %}">콘서트</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'musical_dashboard' %}">뮤지컬</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'play_dashboard' %}">연극</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'exhibition_dashboard' %}">전시</a>
+    </li>
+</ul>
+
+<!-- 통계 카드 -->
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">총 매출</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sales|intcomma }}원</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">총 관객수</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_audience|intcomma }}명</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">평균 객석 점유율</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_occupancy }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-percent fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2 stats-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">진행중인 공연</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_performances }}개</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-music fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 차트 -->
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">공연별 매출</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">공연별 관객수</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="audienceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 공연 목록 -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">공연 목록</h6>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="sortDropdown" data-toggle="dropdown">
+                정렬
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="#" data-sort="sales">매출순</a>
+                <a class="dropdown-item" href="#" data-sort="audience">관객수순</a>
+                <a class="dropdown-item" href="#" data-sort="date">날짜순</a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="performance-list">
+            {% for performance in performances %}
+            <div class="performance-item border-bottom py-3">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <h5 class="mb-1">{{ performance.name }}</h5>
+                        <p class="mb-0 text-muted">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</p>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <p class="mb-0"><strong>매출:</strong> {{ performance.total_sales|intcomma }}원</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <p class="mb-0"><strong>관객수:</strong> {{ performance.total_audience|intcomma }}명</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <p class="mb-0"><strong>객석점유율:</strong> {{ performance.occupancy_rate }}%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 차트 데이터
+    const salesData = {{ sales_data|safe }};
+    const audienceData = {{ audience_data|safe }};
+    
+    // 매출 차트
+    new Chart(document.getElementById('salesChart'), {
+        type: 'bar',
+        data: {
+            labels: salesData.labels,
+            datasets: [{
+                label: '매출 (원)',
+                data: salesData.data,
+                backgroundColor: '#4e73df',
+                borderColor: '#4e73df',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + '원';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            animation: {
+                duration: 400
+            }
+        }
+    });
+    
+    // 관객수 차트
+    new Chart(document.getElementById('audienceChart'), {
+        type: 'bar',
+        data: {
+            labels: audienceData.labels,
+            datasets: [{
+                label: '관객수 (명)',
+                data: audienceData.data,
+                backgroundColor: '#1cc88a',
+                borderColor: '#1cc88a',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + '명';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            animation: {
+                duration: 400
+            }
+        }
+    });
+    
+    // 공연 목록 애니메이션
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('show');
+            }
+        });
+    });
+    
+    document.querySelectorAll('.performance-item').forEach((item) => {
+        observer.observe(item);
+    });
+    
+    // 정렬 기능
+    document.querySelectorAll('[data-sort]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sortBy = this.dataset.sort;
+            const list = document.querySelector('.performance-list');
+            const items = Array.from(list.children);
+            
+            items.sort((a, b) => {
+                let valueA, valueB;
+                
+                if (sortBy === 'sales') {
+                    valueA = parseInt(a.querySelector('[data-sales]').dataset.sales);
+                    valueB = parseInt(b.querySelector('[data-sales]').dataset.sales);
+                } else if (sortBy === 'audience') {
+                    valueA = parseInt(a.querySelector('[data-audience]').dataset.audience);
+                    valueB = parseInt(b.querySelector('[data-audience]').dataset.audience);
+                } else {
+                    valueA = new Date(a.querySelector('[data-date]').dataset.date);
+                    valueB = new Date(b.querySelector('[data-date]').dataset.date);
+                }
+                
+                return valueB - valueA;
+            });
+            
+            items.forEach(item => list.appendChild(item));
+        });
+    });
+});
+</script>
+{% endblock %} 

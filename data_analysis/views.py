@@ -777,3 +777,119 @@ class IndexView(LoginRequiredMixin, TemplateView):
             'musical': queryset.filter(genre='musical').count(),
             'exhibition': queryset.filter(genre='exhibition').count()
         }
+
+class ConcertDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'data_analysis/dashboard/concert_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        performances = Performance.objects.filter(genre='concert')
+        
+        # 통계 데이터 계산
+        context['total_sales'] = float(performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0)
+        context['total_audience'] = performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0
+        context['avg_occupancy'] = float(performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0)
+        context['active_performances'] = performances.filter(end_date__gte=timezone.now()).count()
+        
+        # 차트 데이터 준비
+        sales_data = {
+            'labels': [p.name for p in performances[:10]],
+            'data': [float(p.total_sales) for p in performances[:10]]
+        }
+        audience_data = {
+            'labels': [p.name for p in performances[:10]],
+            'data': [p.total_audience for p in performances[:10]]
+        }
+        
+        context['sales_data'] = json.dumps(sales_data)
+        context['audience_data'] = json.dumps(audience_data)
+        context['performances'] = performances
+        
+        return context
+
+class MusicalDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'data_analysis/dashboard/musical_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        performances = Performance.objects.filter(genre='musical')
+        
+        # 통계 데이터 계산
+        context['total_sales'] = performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0
+        context['total_audience'] = performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0
+        context['avg_occupancy'] = performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0
+        context['active_performances'] = performances.filter(end_date__gte=timezone.now()).count()
+        
+        # 차트 데이터 준비
+        sales_data = {
+            'labels': [p.name for p in performances[:10]],
+            'data': [p.total_sales for p in performances[:10]]
+        }
+        audience_data = {
+            'labels': [p.name for p in performances[:10]],
+            'data': [p.total_audience for p in performances[:10]]
+        }
+        
+        context['sales_data'] = json.dumps(sales_data)
+        context['audience_data'] = json.dumps(audience_data)
+        context['performances'] = performances
+        
+        return context
+
+class PlayDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'data_analysis/dashboard/play_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        performances = Performance.objects.filter(genre='play')
+        
+        # 통계 데이터 계산
+        context['total_sales'] = performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0
+        context['total_audience'] = performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0
+        context['avg_occupancy'] = performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0
+        context['active_performances'] = performances.filter(end_date__gte=timezone.now()).count()
+        
+        # 차트 데이터 준비
+        sales_data = {
+            'labels': [p.name for p in performances[:10]],
+            'data': [p.total_sales for p in performances[:10]]
+        }
+        audience_data = {
+            'labels': [p.name for p in performances[:10]],
+            'data': [p.total_audience for p in performances[:10]]
+        }
+        
+        context['sales_data'] = json.dumps(sales_data)
+        context['audience_data'] = json.dumps(audience_data)
+        context['performances'] = performances
+        
+        return context
+
+class ExhibitionDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'data_analysis/dashboard/exhibition_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        performances = Performance.objects.filter(genre='exhibition')
+        
+        # 통계 데이터 계산
+        context['total_sales'] = performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0
+        context['total_audience'] = performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0
+        context['avg_occupancy'] = performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0
+        context['active_performances'] = performances.filter(end_date__gte=timezone.now()).count()
+        
+        # 차트 데이터 준비
+        sales_data = {
+            'labels': [p.name for p in performances[:10]],
+            'data': [p.total_sales for p in performances[:10]]
+        }
+        audience_data = {
+            'labels': [p.name for p in performances[:10]],
+            'data': [p.total_audience for p in performances[:10]]
+        }
+        
+        context['sales_data'] = json.dumps(sales_data)
+        context['audience_data'] = json.dumps(audience_data)
+        context['performances'] = performances
+        
+        return context

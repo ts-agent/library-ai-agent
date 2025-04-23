@@ -4,12 +4,23 @@ from django.utils.translation import gettext_lazy as _
 
 class Performance(models.Model):
     """공연 정보를 저장하는 모델"""
+    GENRE_CHOICES = [
+        ('concert', '콘서트'),
+        ('musical', '뮤지컬'),
+        ('play', '연극'),
+        ('exhibition', '전시'),
+    ]
+
     name = models.CharField(max_length=200, verbose_name='공연명')
+    genre = models.CharField(max_length=20, choices=GENRE_CHOICES, default='concert', verbose_name='장르')
     venue = models.CharField(max_length=200, verbose_name='공연장소')
     start_date = models.DateField(verbose_name='공연 시작일')
     end_date = models.DateField(verbose_name='공연 종료일')
     age_limit = models.CharField(max_length=50, verbose_name='관람연령')
     running_time = models.CharField(max_length=50, verbose_name='공연시간', default='')
+    total_sales = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name='총 매출')
+    total_audience = models.PositiveIntegerField(default=0, verbose_name='총 관객수')
+    occupancy_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name='객석 점유율')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='등록일')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='수정일')
 

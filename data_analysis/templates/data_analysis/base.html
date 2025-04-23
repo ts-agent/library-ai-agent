@@ -183,51 +183,74 @@
 
     <!-- 사이드바 -->
     <aside class="sidebar">
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="{% url 'data_analysis:index' %}" class="sidebar-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
-                    <i class="bi bi-house"></i>
-                    홈
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- 홈 -->
+            <li class="nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                <a class="nav-link" href="{% url 'data_analysis:index' %}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>홈</span>
                 </a>
             </li>
-            <li class="sidebar-item">
-                <a href="#dataManagement" class="sidebar-link dropdown-toggle" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="dataManagement">
-                    <i class="bi bi-database"></i>
-                    데이터 관리
+
+            <!-- 장르별 대시보드 드롭다운 -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseGenre">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>장르별 대시보드</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <div class="collapse" id="dataManagement">
-                    <ul class="sidebar-submenu">
-                        <li>
-                            <a href="{% url 'data_analysis:performance_list' %}" class="sidebar-link {% if 'performance' in request.resolver_match.url_name %}active{% endif %}">
-                                <i class="bi bi-music-note-beamed"></i>
-                                공연 관리
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'data_analysis:actor_list' %}" class="sidebar-link {% if 'actor' in request.resolver_match.url_name %}active{% endif %}">
-                                <i class="bi bi-person"></i>
-                                배우 관리
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'data_analysis:seatgrade_list' %}" class="sidebar-link {% if 'seatgrade' in request.resolver_match.url_name %}active{% endif %}">
-                                <i class="bi bi-ticket-perforated"></i>
-                                좌석 등급 관리
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'data_analysis:casting_list' %}" class="sidebar-link {% if 'casting' in request.resolver_match.url_name %}active{% endif %}">
-                                <i class="bi bi-people"></i>
-                                캐스팅 관리
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'data_analysis:review_list' %}" class="sidebar-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}">
-                                <i class="bi bi-chat-square-text"></i>
-                                리뷰 관리
-                            </a>
-                        </li>
-                    </ul>
+                <div id="collapseGenre" class="collapse" data-bs-parent="#accordionSidebar">
+                    <div class="collapse-inner">
+                        <a class="nav-link" href="{% url 'data_analysis:concert_dashboard' %}">
+                            <i class="fas fa-fw fa-music"></i>
+                            <span>콘서트</span>
+                        </a>
+                        <a class="nav-link" href="{% url 'data_analysis:musical_dashboard' %}">
+                            <i class="fas fa-fw fa-theater-masks"></i>
+                            <span>뮤지컬</span>
+                        </a>
+                        <a class="nav-link" href="{% url 'data_analysis:play_dashboard' %}">
+                            <i class="fas fa-fw fa-user-friends"></i>
+                            <span>연극</span>
+                        </a>
+                        <a class="nav-link" href="{% url 'data_analysis:exhibition_dashboard' %}">
+                            <i class="fas fa-fw fa-image"></i>
+                            <span>전시</span>
+                        </a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- 데이터 관리 드롭다운 -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseData">
+                    <i class="fas fa-fw fa-database"></i>
+                    <span>데이터 관리</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <div id="collapseData" class="collapse" data-bs-parent="#accordionSidebar">
+                    <div class="collapse-inner">
+                        <a class="nav-link" href="{% url 'data_analysis:performance_list' %}">
+                            <i class="fas fa-fw fa-ticket-alt"></i>
+                            <span>공연 관리</span>
+                        </a>
+                        <a class="nav-link" href="{% url 'data_analysis:actor_list' %}">
+                            <i class="fas fa-fw fa-user"></i>
+                            <span>배우 관리</span>
+                        </a>
+                        <a class="nav-link" href="{% url 'data_analysis:seatgrade_list' %}">
+                            <i class="fas fa-fw fa-chair"></i>
+                            <span>좌석 등급 관리</span>
+                        </a>
+                        <a class="nav-link" href="{% url 'data_analysis:casting_list' %}">
+                            <i class="fas fa-fw fa-users"></i>
+                            <span>캐스팅 관리</span>
+                        </a>
+                        <a class="nav-link" href="{% url 'data_analysis:review_list' %}">
+                            <i class="fas fa-fw fa-comments"></i>
+                            <span>리뷰 관리</span>
+                        </a>
+                    </div>
                 </div>
             </li>
         </ul>

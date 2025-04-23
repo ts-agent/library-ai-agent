@@ -67,4 +67,10 @@ urlpatterns = [
 
     # superuser 생성 URL (비활성화)
     # path('create-admin/', views.create_super_user, name='create_super_user'),
+
+    # 장르별 대시보드
+    path('concert/', views.ConcertDashboardView.as_view(), name='concert_dashboard'),
+    path('musical/', views.MusicalDashboardView.as_view(), name='musical_dashboard'),
+    path('play/', views.PlayDashboardView.as_view(), name='play_dashboard'),
+    path('exhibition/', views.ExhibitionDashboardView.as_view(), name='exhibition_dashboard'),
 ]

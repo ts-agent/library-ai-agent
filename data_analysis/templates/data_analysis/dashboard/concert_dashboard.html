@@ -1,0 +1,295 @@
+{% extends 'data_analysis/base.html' %}
+{% load humanize %}
+
+{% block title %}콘서트 대시보드{% endblock %}
+
+{% block page_title %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">콘서트 대시보드</h1>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        border-radius: 0.35rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        transition: transform 0.2s;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .stats-icon {
+        font-size: 2rem;
+        opacity: 0.4;
+    }
+    
+    .chart-area {
+        height: 320px;
+        margin: 0 auto;
+    }
+    
+    .performance-list {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    
+    .performance-item {
+        transition: background-color 0.3s;
+        padding: 1rem;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    .performance-item:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .text-xs {
+        font-size: 0.7rem;
+    }
+    
+    .text-primary {
+        color: #4e73df !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 통계 카드 -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">총 매출</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sales|intcomma }}원</div>
+                    </div>
+                    <div class="stats-icon text-gray-300">
+                        <i class="fas fa-won-sign"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">총 관객수</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_audience|intcomma }}명</div>
+                    </div>
+                    <div class="stats-icon text-gray-300">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">평균 객석 점유율</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_occupancy }}%</div>
+                    </div>
+                    <div class="stats-icon text-gray-300">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stats-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">진행중인 공연</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_performances }}개</div>
+                    </div>
+                    <div class="stats-icon text-gray-300">
+                        <i class="fas fa-music"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 차트 -->
+<div class="row">
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">월별 매출 추이</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">장르별 분포</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="genreChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 공연 목록 -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">공연 목록</h6>
+        <div class="dropdown no-arrow">
+            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                정렬
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="sortDropdown">
+                <li><a class="dropdown-item" href="#" data-sort="sales">매출순</a></li>
+                <li><a class="dropdown-item" href="#" data-sort="audience">관객수순</a></li>
+                <li><a class="dropdown-item" href="#" data-sort="date">날짜순</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>공연명</th>
+                        <th>기간</th>
+                        <th class="text-end">매출</th>
+                        <th class="text-end">관객수</th>
+                        <th class="text-end">객석점유율</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for performance in performances %}
+                    <tr class="performance-item">
+                        <td>{{ performance.name }}</td>
+                        <td>{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</td>
+                        <td class="text-end" data-sales="{{ performance.total_sales }}">{{ performance.total_sales|intcomma }}원</td>
+                        <td class="text-end" data-audience="{{ performance.total_audience }}">{{ performance.total_audience|intcomma }}명</td>
+                        <td class="text-end">{{ performance.occupancy_rate }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 차트 데이터
+    const salesData = {{ sales_data|safe }};
+    const genreData = {{ genre_data|safe }};
+    
+    // 매출 차트
+    new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+            labels: salesData.labels,
+            datasets: [{
+                label: '매출',
+                data: salesData.data,
+                fill: false,
+                borderColor: '#4e73df',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString() + '원';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // 장르 차트
+    new Chart(document.getElementById('genreChart'), {
+        type: 'doughnut',
+        data: {
+            labels: genreData.labels,
+            datasets: [{
+                data: genreData.data,
+                backgroundColor: [
+                    '#4e73df',
+                    '#1cc88a',
+                    '#36b9cc',
+                    '#f6c23e'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            cutout: '70%'
+        }
+    });
+    
+    // 정렬 기능
+    document.querySelectorAll('[data-sort]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sortBy = this.dataset.sort;
+            const tbody = document.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                let valueA, valueB;
+                
+                if (sortBy === 'sales') {
+                    valueA = parseInt(a.querySelector('[data-sales]').dataset.sales);
+                    valueB = parseInt(b.querySelector('[data-sales]').dataset.sales);
+                } else if (sortBy === 'audience') {
+                    valueA = parseInt(a.querySelector('[data-audience]').dataset.audience);
+                    valueB = parseInt(b.querySelector('[data-audience]').dataset.audience);
+                } else {
+                    valueA = new Date(a.children[1].textContent.split(' ~ ')[0]);
+                    valueB = new Date(b.children[1].textContent.split(' ~ ')[0]);
+                }
+                
+                return valueB - valueA;
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+});
+</script>
+{% endblock %} 

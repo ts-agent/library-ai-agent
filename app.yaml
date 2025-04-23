@@ -30,10 +30,8 @@ env_variables:
   GOOGLE_CLOUD_PROJECT: "library-ai-agent-kr"
   GS_BUCKET_NAME: "library-ai-agent-storage"
   GS_PROJECT_ID: "library-ai-agent-kr"
-
-# .env 파일에서 환경 변수 로드
-includes:
-  - .env
+  DJANGO_SECRET_KEY: "django-insecure-dj%$r4@y-xfk=vb7x5lzk1va6%$u#+a@e+wj2hl3%mv*fqz5za"
+  DJANGO_DEBUG: "False"
 
 # Cloud SQL 인스턴스 연결 설정
 beta_settings:

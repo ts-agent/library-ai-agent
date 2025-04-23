@@ -335,7 +335,14 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="platform" class="form-label">플랫폼</label>
-                        <input type="text" class="form-control" id="platform" name="platform" required>
+                        <select class="form-select" id="platform" name="platform" required>
+                            <option value="" selected disabled>플랫폼을 선택하세요</option>
+                            <option value="NOL티켓">NOL티켓</option>
+                            <option value="유튜브">유튜브</option>
+                            <option value="페이스북">페이스북</option>
+                            <option value="인스타그램">인스타그램</option>
+                            <option value="X">X</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="url" class="form-label">URL</label>
@@ -371,7 +378,14 @@
                     <input type="hidden" id="edit_target_id" name="target_id">
                     <div class="mb-3">
                         <label for="edit_platform" class="form-label">플랫폼</label>
-                        <input type="text" class="form-control" id="edit_platform" name="platform" required>
+                        <select class="form-select" id="edit_platform" name="platform" required>
+                            <option value="" disabled>플랫폼을 선택하세요</option>
+                            <option value="NOL티켓">NOL티켓</option>
+                            <option value="유튜브">유튜브</option>
+                            <option value="페이스북">페이스북</option>
+                            <option value="인스타그램">인스타그램</option>
+                            <option value="X">X</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="edit_url" class="form-label">URL</label>
@@ -403,11 +417,12 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 활성화 토글 처리
-    document.querySelectorAll('.toggle-active').forEach(toggle => {
-        toggle.addEventListener('change', function() {
-            const targetId = this.dataset.targetId;
-            fetch(`/data-analysis/crawling/${targetId}/toggle/`, {
+    // 이벤트 위임을 사용하여 활성화 토글 처리
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('toggle-active')) {
+            e.stopPropagation();
+            const targetId = e.target.dataset.targetId;
+            fetch(`/data_analysis/crawling/${targetId}/toggle/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -415,21 +430,23 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 if (!response.ok) {
-                    this.checked = !this.checked;
+                    e.target.checked = !e.target.checked;
                     throw new Error('활성화 상태 변경에 실패했습니다.');
                 }
             })
             .catch(error => {
                 alert(error.message);
             });
-        });
+        }
     });
 
-    // 수정 버튼 클릭 처리
-    document.querySelectorAll('.edit-target').forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.dataset.targetId;
-            fetch(`/data-analysis/crawling/${targetId}/`)
+    // 이벤트 위임을 사용하여 버튼 클릭 처리
+    document.addEventListener('click', function(e) {
+        // 수정 버튼 클릭 처리
+        if (e.target.classList.contains('edit-target')) {
+            e.stopPropagation();
+            const targetId = e.target.dataset.targetId;
+            fetch(`/data_analysis/crawling/${targetId}/`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('edit_target_id').value = targetId;
@@ -437,17 +454,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('edit_url').value = data.url;
                     document.getElementById('edit_is_active').checked = data.is_active;
                     document.getElementById('editCrawlingForm').action = 
-                        `/data-analysis/crawling/${targetId}/update/`;
+                        `/data_analysis/crawling/${targetId}/update/`;
                 });
-        });
-    });
-
-    // 삭제 버튼 클릭 처리
-    document.querySelectorAll('.delete-target').forEach(button => {
-        button.addEventListener('click', function() {
+        }
+        // 삭제 버튼 클릭 처리
+        else if (e.target.classList.contains('delete-target')) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            // 이미 확인 대화상자가 표시되어 있다면 리턴
+            if (e.target.dataset.confirming) {
+                return;
+            }
+            
+            // 확인 대화상자 표시 중임을 표시
+            e.target.dataset.confirming = 'true';
+            
             if (confirm('이 크롤링 설정을 삭제하시겠습니까?')) {
-                const targetId = this.dataset.targetId;
-                fetch(`/data-analysis/crawling/${targetId}/delete/`, {
+                const targetId = e.target.dataset.targetId;
+                fetch(`/data_analysis/crawling/${targetId}/delete/`, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -462,9 +487,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => {
                     alert(error.message);
+                })
+                .finally(() => {
+                    // 확인 대화상자 표시 상태 제거
+                    delete e.target.dataset.confirming;
                 });
+            } else {
+                // 취소한 경우에도 확인 대화상자 표시 상태 제거
+                delete e.target.dataset.confirming;
             }
-        });
+        }
     });
 });
 </script>

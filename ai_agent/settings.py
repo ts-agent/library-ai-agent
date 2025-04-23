@@ -188,7 +188,7 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 GS_BUCKET_NAME = 'library-ai-agent-storage'  # 실제 버킷 이름으로 변경 필요
 GS_PROJECT_ID = 'library-ai-agent-kr'
 GS_CREDENTIALS = None  # App Engine에서 자동으로 인증 처리
-GS_DEFAULT_ACL = 'publicRead'
+# Uniform bucket-level access가 활성화되어 있으므로 개별 객체의 ACL 설정은 제거
 GS_FILE_OVERWRITE = False
 
 # 미디어 파일 설정

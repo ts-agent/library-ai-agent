@@ -11,3 +11,11 @@ alwaysApply: true
 # 테스트
 
 - 테스트 코드에 대한 작업은 `library-ai-agent/data_analysis/tests.py` 에서 진행합니다.
+
+# 문서화
+
+- gcloud 배포를 진행하면 README.md의 기존 내용에 배포되는 항목들에 대한 내용을 추가 기재 해야합니다.
+
+# 터미널 실행
+
+- 터미널에 대한 명령어를 실행할 때는 항상 venv가 활성화되어 있는지 확인하고 실행합니다.

@@ -42,79 +42,83 @@
             top: 60px;
             left: 0;
             bottom: 0;
-            width: 280px;
-            background: white;
-            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
-            padding: 1.5rem;
+            width: 250px;
+            background: #ffffff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            z-index: 1000;
             overflow-y: auto;
-            z-index: 1020;
         }
 
         .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+            padding: 1rem 0;
         }
 
-        .sidebar-item {
-            margin-bottom: 0.5rem;
+        .menu-section {
+            margin-bottom: 1rem;
         }
 
-        .sidebar-link {
+        .menu-item {
+            position: relative;
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
-            color: #4B5563;
+            padding: 0.75rem 1.5rem;
+            color: #495057;
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
-        .sidebar-link:hover {
-            background-color: #f3f4f6;
-            color: #3B82F6;
+        .menu-item:hover {
+            color: #0d6efd;
+            background-color: #f8f9fa;
+            text-decoration: none;
         }
 
-        .sidebar-link.active {
-            background-color: #3B82F6;
-            color: white;
+        .menu-item.active {
+            color: #0d6efd;
+            background-color: #e7f1ff;
         }
 
-        .sidebar-link i {
+        .menu-item i {
             margin-right: 0.75rem;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
+            width: 1.5rem;
+            text-align: center;
         }
 
-        .main-content {
-            margin-left: 280px;
-            margin-top: 60px;
-            padding: 2rem;
-        }
-        
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #111827;
-            margin-bottom: 1.5rem;
+        .menu-item span {
+            flex: 1;
         }
 
-        .nav-link {
-            color: #4B5563;
-            font-weight: 500;
+        .submenu {
+            background-color: #f8f9fa;
+            padding: 0.5rem 0;
         }
-        
-        .nav-link:hover {
-            color: #3B82F6;
+
+        .submenu .menu-item {
+            padding-left: 3.5rem;
+            font-size: 0.9rem;
         }
-        
-        .nav-link.active {
-            color: #3B82F6 !important;
+
+        .menu-toggle::after {
+            display: inline-block;
+            margin-left: auto;
+            content: "";
+            border-top: 0.3em solid;
+            border-right: 0.3em solid transparent;
+            border-bottom: 0;
+            border-left: 0.3em solid transparent;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .menu-toggle[aria-expanded="true"]::after {
+            transform: rotate(180deg);
         }
 
         @media (max-width: 768px) {
             .sidebar {
+                width: 100%;
                 transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
             }
 
             .sidebar.show {
@@ -126,34 +130,47 @@
             }
         }
 
-        .sidebar-submenu {
-            list-style: none;
-            padding: 0.5rem 0 0.5rem 2.5rem;
-            margin: 0;
+        .main-content {
+            margin-left: 250px;
+            margin-top: 60px;
+            padding: 2rem;
         }
 
-        .sidebar-submenu .sidebar-link {
-            padding: 0.5rem 1rem;
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .sidebar-footer .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sidebar-footer .username {
+            color: #495057;
+            font-weight: 500;
             font-size: 0.9rem;
         }
 
-        .sidebar-submenu .sidebar-link i {
-            font-size: 1rem;
+        .sidebar-footer .logout-btn {
+            width: 100%;
+            padding: 0.5rem;
+            color: #dc3545;
+            background: transparent;
+            border: 1px solid #dc3545;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
         }
 
-        .dropdown-toggle::after {
-            margin-left: auto;
-        }
-
-        .sidebar-link[data-bs-toggle="collapse"] {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .collapse {
-            background-color: rgba(59, 130, 246, 0.05);
-            border-radius: 0 0 8px 8px;
+        .sidebar-footer .logout-btn:hover {
+            color: #fff;
+            background: #dc3545;
         }
     </style>
     
@@ -167,93 +184,96 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
             <a class="navbar-brand" href="{% url 'data_analysis:index' %}">Library Data Agent</a>
-            <div class="ms-auto d-flex align-items-center">
-                {% if user.is_authenticated %}
-                <div class="d-flex align-items-center">
-                    <span class="me-3">{{ user.username }}</span>
-                    <form method="post" action="{% url 'logout' %}" class="m-0">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary btn-sm">로그아웃</button>
-                    </form>
-                </div>
-                {% endif %}
-            </div>
         </div>
     </nav>
 
     <!-- 사이드바 -->
     <aside class="sidebar">
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-            <!-- 홈 -->
-            <li class="nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
-                <a class="nav-link" href="{% url 'data_analysis:index' %}">
-                    <i class="fas fa-fw fa-home"></i>
+        <nav class="sidebar-menu">
+            <!-- 홈 메뉴 -->
+            <div class="menu-section">
+                <a href="{% url 'data_analysis:index' %}" class="menu-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                    <i class="bi bi-house-door"></i>
                     <span>홈</span>
                 </a>
-            </li>
+            </div>
 
             <!-- 장르별 대시보드 드롭다운 -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseGenre">
-                    <i class="fas fa-fw fa-chart-area"></i>
+            <div class="menu-section">
+                <a href="#" class="menu-item menu-toggle" data-bs-toggle="collapse" data-bs-target="#genreMenu" aria-expanded="false">
+                    <i class="bi bi-graph-up"></i>
                     <span>장르별 대시보드</span>
-                    <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <div id="collapseGenre" class="collapse" data-bs-parent="#accordionSidebar">
-                    <div class="collapse-inner">
-                        <a class="nav-link" href="{% url 'data_analysis:concert_dashboard' %}">
-                            <i class="fas fa-fw fa-music"></i>
+                <div class="collapse" id="genreMenu">
+                    <div class="submenu">
+                        <a href="{% url 'data_analysis:concert_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'concert_dashboard' %}active{% endif %}">
+                            <i class="bi bi-music-note-beamed"></i>
                             <span>콘서트</span>
                         </a>
-                        <a class="nav-link" href="{% url 'data_analysis:musical_dashboard' %}">
-                            <i class="fas fa-fw fa-theater-masks"></i>
+                        <a href="{% url 'data_analysis:musical_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'musical_dashboard' %}active{% endif %}">
+                            <i class="bi bi-music-player"></i>
                             <span>뮤지컬</span>
                         </a>
-                        <a class="nav-link" href="{% url 'data_analysis:play_dashboard' %}">
-                            <i class="fas fa-fw fa-user-friends"></i>
+                        <a href="{% url 'data_analysis:play_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'play_dashboard' %}active{% endif %}">
+                            <i class="bi bi-people"></i>
                             <span>연극</span>
                         </a>
-                        <a class="nav-link" href="{% url 'data_analysis:exhibition_dashboard' %}">
-                            <i class="fas fa-fw fa-image"></i>
+                        <a href="{% url 'data_analysis:exhibition_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'exhibition_dashboard' %}active{% endif %}">
+                            <i class="bi bi-image"></i>
                             <span>전시</span>
                         </a>
                     </div>
                 </div>
-            </li>
+            </div>
 
             <!-- 데이터 관리 드롭다운 -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseData">
-                    <i class="fas fa-fw fa-database"></i>
+            <div class="menu-section">
+                <a href="#" class="menu-item menu-toggle" data-bs-toggle="collapse" data-bs-target="#dataMenu" aria-expanded="false">
+                    <i class="bi bi-database"></i>
                     <span>데이터 관리</span>
-                    <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <div id="collapseData" class="collapse" data-bs-parent="#accordionSidebar">
-                    <div class="collapse-inner">
-                        <a class="nav-link" href="{% url 'data_analysis:performance_list' %}">
-                            <i class="fas fa-fw fa-ticket-alt"></i>
-                            <span>공연 관리</span>
+                <div class="collapse" id="dataMenu">
+                    <div class="submenu">
+                        <a href="{% url 'data_analysis:performance_list' %}" class="menu-item {% if request.resolver_match.url_name == 'performance_list' %}active{% endif %}">
+                            <i class="bi bi-ticket-perforated"></i>
+                            <span>공연</span>
                         </a>
-                        <a class="nav-link" href="{% url 'data_analysis:actor_list' %}">
-                            <i class="fas fa-fw fa-user"></i>
-                            <span>배우 관리</span>
+                        <a href="{% url 'data_analysis:actor_list' %}" class="menu-item {% if request.resolver_match.url_name == 'actor_list' %}active{% endif %}">
+                            <i class="bi bi-person"></i>
+                            <span>배우</span>
                         </a>
-                        <a class="nav-link" href="{% url 'data_analysis:seatgrade_list' %}">
-                            <i class="fas fa-fw fa-chair"></i>
-                            <span>좌석 등급 관리</span>
+                        <a href="{% url 'data_analysis:seatgrade_list' %}" class="menu-item {% if request.resolver_match.url_name == 'seatgrade_list' %}active{% endif %}">
+                            <i class="bi bi-diagram-3"></i>
+                            <span>좌석 등급</span>
                         </a>
-                        <a class="nav-link" href="{% url 'data_analysis:casting_list' %}">
-                            <i class="fas fa-fw fa-users"></i>
-                            <span>캐스팅 관리</span>
+                        <a href="{% url 'data_analysis:casting_list' %}" class="menu-item {% if request.resolver_match.url_name == 'casting_list' %}active{% endif %}">
+                            <i class="bi bi-people-fill"></i>
+                            <span>캐스팅</span>
                         </a>
-                        <a class="nav-link" href="{% url 'data_analysis:review_list' %}">
-                            <i class="fas fa-fw fa-comments"></i>
-                            <span>리뷰 관리</span>
+                        <a href="{% url 'data_analysis:review_list' %}" class="menu-item {% if request.resolver_match.url_name == 'review_list' %}active{% endif %}">
+                            <i class="bi bi-chat-dots"></i>
+                            <span>리뷰</span>
                         </a>
                     </div>
                 </div>
-            </li>
-        </ul>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <span class="username">
+                    <i class="bi bi-person-circle me-2"></i>
+                    {{ user.username }}
+                </span>
+                <form method="post" action="{% url 'logout' %}" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        로그아웃
+                    </button>
+                </form>
+            </div>
+        </div>
     </aside>
 
     <!-- 메인 컨텐츠 -->
@@ -265,17 +285,51 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 모바일 사이드바 토글
-        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('show');
-        });
-
-        // 현재 활성화된 메뉴 표시
         document.addEventListener('DOMContentLoaded', function() {
+            // 모바일 사이드바 토글
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // 현재 페이지 메뉴 활성화 및 드롭다운 자동 열기
             const currentPath = window.location.pathname;
-            document.querySelectorAll('.sidebar-link').forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
+            const menuItems = document.querySelectorAll('.menu-item');
+            
+            menuItems.forEach(item => {
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                    
+                    // 부모 드롭다운 메뉴 열기
+                    const parentCollapse = item.closest('.collapse');
+                    if (parentCollapse) {
+                        parentCollapse.classList.add('show');
+                        const dropdownToggle = parentCollapse.previousElementSibling;
+                        if (dropdownToggle) {
+                            dropdownToggle.setAttribute('aria-expanded', 'true');
+                        }
+                    }
+                }
+            });
+
+            // 화면 크기가 변경될 때 사이드바 상태 관리
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('show');
+                }
+            });
+
+            // 사이드바 외부 클릭 시 닫기 (모바일)
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(event.target) && 
+                    !sidebarToggle.contains(event.target) && 
+                    sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
                 }
             });
         });

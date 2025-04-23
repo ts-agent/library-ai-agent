@@ -5,7 +5,7 @@ alwaysApply: true
 ---
 # 템플릿 파일 경로 규칙
 
-- 모든 템플릿 파일(.html)은 `ai_agent/data_analysis/templates` 디렉토리 안에 생성합니다.
+- 모든 템플릿 파일(.html)은 `library-ai-agent/data_analysis/templates` 디렉토리 안에 생성합니다.
 - requirements.txt에 대한 작업은 `library-ai-agent/requirements.txt` 에서 진행합니다.
 
 # 테스트
@@ -14,12 +14,18 @@ alwaysApply: true
 
 # 문서화
 
-- gcloud 배포를 진행하면 README.md의 기존 내용에 배포되는 항목들에 대한 내용을 추가 기재 해야합니다.
+- gcloud 배포를 진행하면 README.md의 '최근 업데이트 내용' 섹션 상단에 배포 날짜(YYYY-MM-DD)를 기입하고 기존 내용에 배포되는 항목들에 대한 내용을 추가 기재 해야합니다.
 
 # 터미널 실행
 
 - 터미널에 대한 명령어를 실행할 때는 항상 venv가 활성화되어 있는지 확인하고 실행합니다.
+- venv 활성화 명령어: `source venv/bin/activate` (Mac/Linux) 또는 `.\venv\Scripts\activate` (Windows)
 
 # UI
 
-- pc와 mobile 모두 대응 가능하게 구현합니다.
+- PC와 Mobile 모두 대응 가능하게 구현합니다.
+  - 지원 해상도: 
+    - Mobile: 최소 320px ~ 768px
+    - Tablet: 768px ~ 1024px
+    - Desktop: 1024px 이상
+- Bootstrap 5.3.0의 반응형 그리드 시스템을 활용합니다.

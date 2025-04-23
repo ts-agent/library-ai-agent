@@ -54,6 +54,24 @@
     .text-primary {
         color: #4e73df !important;
     }
+    
+    .stats-change {
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        color: #333; /* 전월대비 텍스트 색상을 검정색으로 변경 */
+    }
+    
+    .stats-change .change-value {
+        color: #4e73df; /* 감소시 파란색 */
+    }
+    
+    .stats-change .change-value.increase {
+        color: #e74a3b; /* 증가시 빨간색 */
+    }
+    
+    .stats-change i {
+        margin-right: 0.25rem;
+    }
 </style>
 {% endblock %}
 
@@ -67,6 +85,13 @@
                     <div>
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">총 매출</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sales|intcomma }}원</div>
+                        <div class="stats-change">
+                            전월대비 
+                            <span class="change-value {% if sales_change > 0 %}increase{% endif %}">
+                                <i class="fas {% if sales_change > 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
+                                {{ sales_change|floatformat:1 }}%
+                            </span>
+                        </div>
                     </div>
                     <div class="stats-icon text-gray-300">
                         <i class="fas fa-won-sign"></i>
@@ -82,6 +107,13 @@
                     <div>
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">총 관객수</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_audience|intcomma }}명</div>
+                        <div class="stats-change">
+                            전월대비 
+                            <span class="change-value {% if audience_change > 0 %}increase{% endif %}">
+                                <i class="fas {% if audience_change > 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
+                                {{ audience_change|floatformat:1 }}명
+                            </span>
+                        </div>
                     </div>
                     <div class="stats-icon text-gray-300">
                         <i class="fas fa-users"></i>
@@ -97,6 +129,13 @@
                     <div>
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1">평균 객석 점유율</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_occupancy }}%</div>
+                        <div class="stats-change">
+                            전월대비 
+                            <span class="change-value {% if occupancy_change > 0 %}increase{% endif %}">
+                                <i class="fas {% if occupancy_change > 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
+                                {{ occupancy_change|floatformat:1 }}%
+                            </span>
+                        </div>
                     </div>
                     <div class="stats-icon text-gray-300">
                         <i class="fas fa-percent"></i>
@@ -112,6 +151,13 @@
                     <div>
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">진행중인 공연</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_performances }}개</div>
+                        <div class="stats-change">
+                            전월대비 
+                            <span class="change-value {% if performance_change > 0 %}increase{% endif %}">
+                                <i class="fas {% if performance_change > 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
+                                {{ performance_change|floatformat:1 }}개
+                            </span>
+                        </div>
                     </div>
                     <div class="stats-icon text-gray-300">
                         <i class="fas fa-theater-masks"></i>

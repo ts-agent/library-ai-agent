@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Data Agent{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts - Pretendard -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            height: 60px;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1030;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: #3B82F6;
+            margin-right: 2rem;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            overflow-y: auto;
+            z-index: 1020;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #4B5563;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background-color: #f3f4f6;
+            color: #3B82F6;
+        }
+
+        .sidebar-link.active {
+            background-color: #3B82F6;
+            color: white;
+        }
+
+        .sidebar-link i {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            margin-top: 60px;
+            padding: 2rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-link {
+            color: #4B5563;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #3B82F6;
+        }
+        
+        .nav-link.active {
+            color: #3B82F6 !important;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .sidebar-submenu {
+            list-style: none;
+            padding: 0.5rem 0 0.5rem 2.5rem;
+            margin: 0;
+        }
+
+        .sidebar-submenu .sidebar-link {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-submenu .sidebar-link i {
+            font-size: 1rem;
+        }
+
+        .dropdown-toggle::after {
+            margin-left: auto;
+        }
+
+        .sidebar-link[data-bs-toggle="collapse"] {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collapse {
+            background-color: rgba(59, 130, 246, 0.05);
+            border-radius: 0 0 8px 8px;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- 네비게이션 바 -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid px-4">
+            <button class="btn btn-link d-lg-none me-2" type="button" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <a class="navbar-brand" href="{% url 'data_analysis:index' %}">AI Data Agent</a>
+            <div class="ms-auto d-flex align-items-center">
+                {% if user.is_authenticated %}
+                <div class="d-flex align-items-center">
+                    <span class="me-3">{{ user.username }}</span>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-primary btn-sm">로그아웃</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- 사이드바 -->
+    <aside class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{% url 'data_analysis:index' %}" class="sidebar-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                    <i class="bi bi-house"></i>
+                    홈
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#dataManagement" class="sidebar-link dropdown-toggle" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="dataManagement">
+                    <i class="bi bi-database"></i>
+                    데이터 관리
+                </a>
+                <div class="collapse" id="dataManagement">
+                    <ul class="sidebar-submenu">
+                        <li>
+                            <a href="{% url 'data_analysis:performance_list' %}" class="sidebar-link {% if 'performance' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="bi bi-music-note-beamed"></i>
+                                공연 관리
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'data_analysis:actor_list' %}" class="sidebar-link {% if 'actor' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="bi bi-person"></i>
+                                배우 관리
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'data_analysis:seatgrade_list' %}" class="sidebar-link {% if 'seatgrade' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="bi bi-ticket-perforated"></i>
+                                좌석 등급 관리
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'data_analysis:casting_list' %}" class="sidebar-link {% if 'casting' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="bi bi-people"></i>
+                                캐스팅 관리
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'data_analysis:review_list' %}" class="sidebar-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}">
+                                <i class="bi bi-chat-square-text"></i>
+                                리뷰 관리
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="main-content">
+        <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 모바일 사이드바 토글
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+
+        // 현재 활성화된 메뉴 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

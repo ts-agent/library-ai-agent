@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, View
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, View, TemplateView
 from django.urls import reverse_lazy
 from django.http import JsonResponse, HttpResponse
-from django.db.models import F
+from django.db.models import F, Sum, Avg
 from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, SettlementData, MarketingCalendar, MarketingEvent, CrawlingTarget
 from .forms import PerformanceForm
 from django.contrib import messages
@@ -18,6 +18,7 @@ from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.conf import settings
 import os
+from django.utils import timezone
 
 @login_required
 def index(request):
@@ -713,3 +714,66 @@ def create_super_user(request):
         return HttpResponse("Superuser가 성공적으로 생성되었습니다.")
     except Exception as e:
         return HttpResponse(f"오류 발생: {str(e)}", status=500)
+
+class IndexView(LoginRequiredMixin, TemplateView):
+    template_name = 'data_analysis/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # 전체 데이터
+        all_performances = Performance.objects.all()
+        
+        # 장르별 데이터
+        genre_data = {
+            'all': all_performances,
+            'concert': all_performances.filter(genre='concert'),
+            'theater': all_performances.filter(genre='theater'),
+            'musical': all_performances.filter(genre='musical'),
+            'exhibition': all_performances.filter(genre='exhibition')
+        }
+
+        # 장르별 통계 데이터 계산
+        stats = {}
+        for genre, queryset in genre_data.items():
+            stats[genre] = {
+                'total_sales': queryset.aggregate(Sum('total_sales'))['total_sales__sum'] or 0,
+                'total_audience': queryset.aggregate(Sum('total_audience'))['total_audience__sum'] or 0,
+                'avg_occupancy': queryset.aggregate(Avg('occupancy'))['occupancy__avg'] or 0,
+                'active_count': queryset.filter(end_date__gte=timezone.now()).count(),
+                'monthly_sales': self.get_monthly_sales(queryset),
+                'genre_distribution': self.get_genre_distribution(queryset)
+            }
+
+        context.update({
+            'performances': all_performances,
+            'stats': stats,
+            'current_month': timezone.now().strftime('%Y년 %m월')
+        })
+        
+        return context
+    
+    def get_monthly_sales(self, queryset):
+        """월별 판매 추이 데이터 계산"""
+        current_year = timezone.now().year
+        monthly_sales = []
+        
+        for month in range(1, 13):
+            sales = queryset.filter(
+                sales_data__uploaded_at__year=current_year,
+                sales_data__uploaded_at__month=month
+            ).aggregate(
+                total=Sum('sales_data__total_amount')
+            )['total'] or 0
+            monthly_sales.append(sales)
+        
+        return monthly_sales
+
+    def get_genre_distribution(self, queryset):
+        """장르별 판매 비율 데이터 계산"""
+        return {
+            'concert': queryset.filter(genre='concert').count(),
+            'theater': queryset.filter(genre='theater').count(),
+            'musical': queryset.filter(genre='musical').count(),
+            'exhibition': queryset.filter(genre='exhibition').count()
+        }

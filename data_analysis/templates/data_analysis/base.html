@@ -330,7 +330,7 @@
             <!-- 전체 메뉴 -->
             <div class="menu-section">
                 <a href="{% url 'data_analysis:index' %}" class="menu-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
-                    <i class="bi bi-house-door"></i>
+                    <i class="bi bi-house-door text-primary"></i>
                     <span>전체</span>
                 </a>
             </div>
@@ -338,25 +338,25 @@
             <!-- 장르별 대시보드 드롭다운 -->
             <div class="menu-section">
                 <a href="#" class="menu-item menu-toggle" data-bs-toggle="collapse" data-bs-target="#genreMenu" aria-expanded="false">
-                    <i class="bi bi-graph-up"></i>
+                    <i class="bi bi-graph-up text-success"></i>
                     <span>장르별 대시보드</span>
                 </a>
                 <div class="collapse" id="genreMenu">
                     <div class="submenu">
                         <a href="{% url 'data_analysis:concert_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'concert_dashboard' %}active{% endif %}">
-                            <i class="bi bi-music-note-beamed"></i>
+                            <i class="bi bi-music-note-beamed text-danger"></i>
                             <span>콘서트</span>
                         </a>
                         <a href="{% url 'data_analysis:musical_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'musical_dashboard' %}active{% endif %}">
-                            <i class="bi bi-music-player"></i>
+                            <i class="bi bi-music-player text-info"></i>
                             <span>뮤지컬</span>
                         </a>
                         <a href="{% url 'data_analysis:play_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'play_dashboard' %}active{% endif %}">
-                            <i class="bi bi-people"></i>
+                            <i class="bi bi-people text-warning"></i>
                             <span>연극</span>
                         </a>
                         <a href="{% url 'data_analysis:exhibition_dashboard' %}" class="menu-item {% if request.resolver_match.url_name == 'exhibition_dashboard' %}active{% endif %}">
-                            <i class="bi bi-image"></i>
+                            <i class="bi bi-image text-success"></i>
                             <span>전시</span>
                         </a>
                     </div>
@@ -366,7 +366,7 @@
             <!-- 공연별 대시보드 드롭다운 -->
             <div class="menu-section">
                 <a href="#" class="menu-item menu-toggle" data-bs-toggle="collapse" data-bs-target="#performanceMenu" aria-expanded="false">
-                    <i class="bi bi-bar-chart-line"></i>
+                    <i class="bi bi-bar-chart-line text-info"></i>
                     <span>공연별 대시보드</span>
                 </a>
                 <div class="collapse" id="performanceMenu">
@@ -412,7 +412,7 @@
 
                         {% if not upcoming_performances and not ongoing_performances and not completed_performances %}
                         <div class="menu-item text-muted">
-                            <i class="bi bi-info-circle"></i>
+                            <i class="bi bi-info-circle text-muted"></i>
                             <span>등록된 공연이 없습니다</span>
                         </div>
                         {% endif %}
@@ -423,7 +423,7 @@
             <!-- 데이터 관리 드롭다운 -->
             <div class="menu-section">
                 <a href="#" class="menu-item menu-toggle" data-bs-toggle="collapse" data-bs-target="#dataMenu" aria-expanded="false">
-                    <i class="bi bi-database"></i>
+                    <i class="bi bi-database text-purple"></i>
                     <span>데이터 관리</span>
                 </a>
                 <div class="collapse" id="dataMenu">

@@ -3,6 +3,55 @@
 
 {% block title %}공연 관리{% endblock %}
 
+{% block extra_css %}
+<style>
+    .performance-row {
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+    .performance-row:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .performance-row td:first-child {
+        position: relative;
+        padding-left: 1rem;
+    }
+    .performance-row td:first-child::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background-color: transparent;
+        transition: background-color 0.2s ease-in-out;
+    }
+    .performance-row:hover td:first-child::before {
+        background-color: #0d6efd;
+    }
+    .btn-group .btn {
+        z-index: 1;
+    }
+    .performance-image {
+        width: 60px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .performance-image-placeholder {
+        width: 60px;
+        height: 80px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #adb5bd;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-4">
@@ -56,9 +105,10 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table align-middle">
                     <thead>
                         <tr>
+                            <th>대표 이미지</th>
                             <th>공연명</th>
                             <th>장르</th>
                             <th>공연 기간</th>
@@ -69,20 +119,20 @@
                     </thead>
                     <tbody>
                         {% for performance in performances %}
-                        <tr class="cursor-pointer" onclick="window.location.href='{% url 'data_analysis:performance_detail' performance.pk %}'">
+                        <tr class="performance-row" onclick="window.location.href='{% url 'data_analysis:performance_detail' performance.pk %}'">
                             <td>
-                                <div class="d-flex align-items-center">
-                                    {% if performance.poster %}
-                                    <img src="{{ performance.poster.url }}" alt="{{ performance.name }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                                    {% else %}
-                                    <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                        <i class="bi bi-image text-muted"></i>
-                                    </div>
-                                    {% endif %}
-                                    <div>
-                                        <div class="fw-bold">{{ performance.name }}</div>
-                                        <small class="text-muted">{{ performance.get_status_display }}</small>
-                                    </div>
+                                {% if performance.poster %}
+                                <img src="{{ performance.poster.url }}" alt="{{ performance.name }}" class="performance-image">
+                                {% else %}
+                                <div class="performance-image-placeholder">
+                                    <i class="bi bi-image fs-4"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div>
+                                    <div class="fw-bold">{{ performance.name }}</div>
+                                    <small class="text-muted">{{ performance.get_status_display }}</small>
                                 </div>
                             </td>
                             <td>{{ performance.get_genre_display }}</td>
@@ -104,7 +154,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
+                            <td colspan="7" class="text-center py-4 text-muted">
                                 <i class="bi bi-info-circle me-1"></i>등록된 공연이 없습니다.
                             </td>
                         </tr>

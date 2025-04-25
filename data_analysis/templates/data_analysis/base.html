@@ -428,32 +428,10 @@
                 </a>
                 <div class="collapse" id="dataMenu">
                     <div class="submenu">
-                        <div class="submenu-section">
-                            <div class="submenu-title">공연</div>
-                            <a href="{% url 'data_analysis:performance_list' %}" class="menu-item {% if request.resolver_match.url_name == 'performance_list' %}active{% endif %}">
-                                <i class="bi bi-ticket-perforated text-primary"></i>
-                                <span>공연 관리</span>
-                            </a>
-                            <a href="{% url 'data_analysis:actor_list' %}" class="menu-item {% if request.resolver_match.url_name == 'actor_list' %}active{% endif %}">
-                                <i class="bi bi-person text-info"></i>
-                                <span>배우 관리</span>
-                            </a>
-                            <a href="{% url 'data_analysis:casting_list' %}" class="menu-item {% if request.resolver_match.url_name == 'casting_list' %}active{% endif %}">
-                                <i class="bi bi-people text-success"></i>
-                                <span>캐스팅 관리</span>
-                            </a>
-                            <a href="{% url 'data_analysis:seatgrade_list' %}" class="menu-item {% if request.resolver_match.url_name == 'seatgrade_list' %}active{% endif %}">
-                                <i class="bi bi-diagram-3 text-warning"></i>
-                                <span>좌석 등급</span>
-                            </a>
-                        </div>
-                        <div class="submenu-section">
-                            <div class="submenu-title">마케팅/리뷰</div>
-                            <a href="{% url 'data_analysis:review_list' %}" class="menu-item {% if request.resolver_match.url_name == 'review_list' %}active{% endif %}">
-                                <i class="bi bi-chat-dots text-info"></i>
-                                <span>리뷰 관리</span>
-                            </a>
-                        </div>
+                        <a href="{% url 'data_analysis:performance_list' %}" class="menu-item {% if request.resolver_match.url_name == 'performance_list' %}active{% endif %}">
+                            <i class="bi bi-ticket-perforated text-primary"></i>
+                            <span>공연 관리</span>
+                        </a>
                     </div>
                 </div>
             </div>

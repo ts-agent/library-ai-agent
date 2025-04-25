@@ -188,108 +188,95 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <!-- 헤더 영역 -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">공연 목록</h1>
-        </div>
-        <div>
-            <a href="{% url 'data_analysis:performance_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-1"></i>공연 등록
-            </a>
-        </div>
-    </div>
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">공연 목록</h1>
 
-    <!-- 필터 영역 -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-6">
-                    <div class="btn-group" role="group">
-                        <input type="radio" class="btn-check" name="genre" id="all" value="" {% if not request.GET.genre %}checked{% endif %}>
-                        <label class="btn btn-outline-secondary" for="all">전체</label>
-                        
-                        <input type="radio" class="btn-check" name="genre" id="concert" value="concert" {% if request.GET.genre == 'concert' %}checked{% endif %}>
-                        <label class="btn btn-outline-secondary" for="concert">콘서트</label>
-                        
-                        <input type="radio" class="btn-check" name="genre" id="musical" value="musical" {% if request.GET.genre == 'musical' %}checked{% endif %}>
-                        <label class="btn btn-outline-secondary" for="musical">뮤지컬</label>
-                        
-                        <input type="radio" class="btn-check" name="genre" id="play" value="play" {% if request.GET.genre == 'play' %}checked{% endif %}>
-                        <label class="btn btn-outline-secondary" for="play">연극</label>
-                        
-                        <input type="radio" class="btn-check" name="genre" id="exhibition" value="exhibition" {% if request.GET.genre == 'exhibition' %}checked{% endif %}>
-                        <label class="btn btn-outline-secondary" for="exhibition">전시</label>
+    <!-- 통계 카드 -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">총 매출액</div>
+                            <div class="h5 mb-0 font-weight-bold" id="totalSales"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="search" placeholder="공연명 검색" value="{{ request.GET.search }}">
-                        <button class="btn btn-outline-secondary" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">총 관객 수</div>
+                            <div class="h5 mb-0 font-weight-bold" id="totalAudience"></div>
+                        </div>
                     </div>
                 </div>
-            </form>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">평균 객석 점유율</div>
+                            <div class="h5 mb-0 font-weight-bold" id="avgOccupancy"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- 공연 목록 테이블 -->
-    <div class="card">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">공연 목록</h6>
+            <a href="{% url 'data_analysis:performance_create' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> 공연 등록
+            </a>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table align-middle">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>대표 이미지</th>
                             <th>공연명</th>
                             <th>장르</th>
-                            <th>공연 기간</th>
-                            <th>러닝타임</th>
                             <th>공연장</th>
+                            <th>공연 기간</th>
+                            <th>총 매출</th>
+                            <th>관객 수</th>
+                            <th>객석 점유율</th>
                             <th>관리</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for performance in performances %}
-                        <tr class="performance-row" onclick="window.location.href='{% url 'data_analysis:performance_detail' performance.pk %}'">
+                        <tr>
                             <td>
-                                {% if performance.poster %}
-                                <img src="{{ performance.poster.url }}" alt="{{ performance.name }}" class="performance-image">
-                                {% else %}
-                                <div class="performance-image-placeholder">
-                                    <i class="bi bi-image fs-4"></i>
-                                </div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div>
-                                    <div class="fw-bold">{{ performance.name }}</div>
-                                    <small class="text-muted">{{ performance.get_status_display }}</small>
-                                </div>
+                                <a href="{% url 'data_analysis:performance_detail' performance.pk %}">
+                                    {{ performance.name }}
+                                </a>
                             </td>
                             <td>{{ performance.get_genre_display }}</td>
-                            <td>
-                                {{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}
-                            </td>
-                            <td>{{ performance.running_time }}분</td>
                             <td>{{ performance.venue }}</td>
+                            <td>{{ performance.start_date|date:"Y-m-d" }} ~ {{ performance.end_date|date:"Y-m-d" }}</td>
+                            <td>{{ performance.total_sales|intcomma }}원</td>
+                            <td>{{ performance.total_audience|intcomma }}명</td>
+                            <td>{{ performance.occupancy_rate|floatformat:1 }}%</td>
                             <td>
-                                <div class="btn-group" onclick="event.stopPropagation();">
-                                    <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-pencil"></i>
+                                <div class="btn-group">
+                                    <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{% url 'data_analysis:performance_delete' performance.pk %}" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
+                                    <a href="{% url 'data_analysis:performance_delete' performance.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
                                     </a>
                                 </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">
-                                <i class="bi bi-info-circle me-1"></i>등록된 공연이 없습니다.
                             </td>
                         </tr>
                         {% endfor %}
@@ -298,66 +285,31 @@
             </div>
         </div>
     </div>
-
-    <!-- 페이지네이션 -->
-    {% if is_paginated %}
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page=1{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                    <i class="bi bi-chevron-double-left"></i>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                    <i class="bi bi-chevron-left"></i>
-                </a>
-            </li>
-            {% endif %}
-
-            {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                <li class="page-item active">
-                    <span class="page-link">{{ num }}</span>
-                </li>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ num }}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                        {{ num }}
-                    </a>
-                </li>
-                {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                    <i class="bi bi-chevron-right"></i>
-                </a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                    <i class="bi bi-chevron-double-right"></i>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
 </div>
 
-{% block extra_js %}
+{% block extra_scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 장르 필터 변경 시 자동 submit
-        const genreFilters = document.querySelectorAll('input[name="genre"]');
-        genreFilters.forEach(filter => {
-            filter.addEventListener('change', function() {
-                this.closest('form').submit();
-            });
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    // 통계 데이터 파싱
+    const stats = JSON.parse('{{ stats|safe }}');
+    
+    // 통계 값 표시
+    document.getElementById('totalSales').textContent = new Intl.NumberFormat('ko-KR', { 
+        style: 'currency', 
+        currency: 'KRW'
+    }).format(stats.total_sales);
+    
+    document.getElementById('totalAudience').textContent = new Intl.NumberFormat('ko-KR').format(stats.total_audience) + '명';
+    
+    document.getElementById('avgOccupancy').textContent = stats.avg_occupancy.toFixed(1) + '%';
+    
+    // DataTables 초기화
+    $('#dataTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Korean.json'
+        }
     });
+});
 </script>
 {% endblock %}
 {% endblock %} 

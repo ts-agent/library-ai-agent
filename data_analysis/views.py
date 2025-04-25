@@ -21,6 +21,7 @@ import os
 from django.utils import timezone
 import calendar
 from datetime import timedelta
+from decimal import Decimal
 
 @login_required
 def index(request):
@@ -38,6 +39,20 @@ class PerformanceListView(LoginRequiredMixin, ListView):
     template_name = 'data_analysis/performance/list.html'
     context_object_name = 'performances'
     ordering = ['-start_date']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        performances = self.get_queryset()
+        
+        # 통계 데이터 계산
+        stats = {
+            'total_sales': performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0,
+            'total_audience': performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0,
+            'avg_occupancy': performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0
+        }
+        
+        context['stats'] = json.dumps(stats, cls=DecimalEncoder)
+        return context
 
 class PerformanceDetailView(LoginRequiredMixin, DetailView):
     model = Performance
@@ -820,7 +835,7 @@ class MusicalDashboardView(LoginRequiredMixin, TemplateView):
             'data': [p.total_audience for p in performances[:10]]
         }
         
-        context['sales_data'] = json.dumps(sales_data)
+        context['sales_data'] = json.dumps(sales_data, cls=DecimalEncoder)
         context['audience_data'] = json.dumps(audience_data)
         context['performances'] = performances
         
@@ -1048,3 +1063,9 @@ def get_dashboard_data(performance, period):
         })
     
     return response_data
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super().default(obj)

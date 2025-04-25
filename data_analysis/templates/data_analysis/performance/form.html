@@ -172,6 +172,22 @@
                                 <div class="help-text">분 단위로 입력해주세요.</div>
                             </div>
                         </div>
+
+                        <!-- 공연 설명 -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label required-field">공연 설명</label>
+                            <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                                    id="{{ form.description.id_for_label }}"
+                                    name="{{ form.description.name }}"
+                                    rows="5"
+                                    required>{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.description.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            <div class="help-text">공연에 대한 상세한 설명을 입력해주세요.</div>
+                        </div>
                     </div>
 
                     <!-- 포스터 -->
@@ -204,23 +220,6 @@
                             {% endif %}
                             <div class="help-text">JPG, PNG 파일만 업로드 가능합니다.</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- 공연 설명 -->
-                <div class="mb-4">
-                    <h5 class="card-title mb-3">공연 설명</h5>
-                    <div class="mb-3">
-                        <label for="{{ form.description.id_for_label }}" class="form-label">상세 설명</label>
-                        <textarea class="form-control {% if form.description.errors %}is-invalid{% endif %}"
-                                  id="{{ form.description.id_for_label }}"
-                                  name="{{ form.description.name }}"
-                                  rows="5">{{ form.description.value|default:'' }}</textarea>
-                        {% if form.description.errors %}
-                        <div class="invalid-feedback">
-                            {{ form.description.errors|join:", " }}
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
 

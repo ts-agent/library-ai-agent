@@ -18,6 +18,7 @@ class Performance(models.Model):
     end_date = models.DateField(verbose_name='공연 종료일')
     age_limit = models.CharField(max_length=50, verbose_name='관람연령')
     running_time = models.CharField(max_length=50, verbose_name='공연시간', default='')
+    description = models.TextField(verbose_name='공연 설명', blank=True)
     total_sales = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name='총 매출')
     total_audience = models.PositiveIntegerField(default=0, verbose_name='총 관객수')
     occupancy_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name='객석 점유율')

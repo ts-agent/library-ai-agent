@@ -5,70 +5,171 @@
 
 {% block page_title %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">전체</h1>
+    <h1 class="h3 mb-0">대시보드</h1>
+    <div class="d-flex gap-2">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary active" data-period="month">월간</button>
+            <button type="button" class="btn btn-outline-primary" data-period="quarter">분기</button>
+            <button type="button" class="btn btn-outline-primary" data-period="year">연간</button>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
+    /* Pretendard 폰트 import */
+    @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+
+    /* 기본 폰트 설정 */
+    body, 
+    .stats-title,
+    .stats-value,
+    .stats-change,
+    .chart-card h5,
+    .table,
+    .btn,
+    .form-control {
+        font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    }
+
+    /* 카드 스타일 개선 */
     .stats-card {
-        transition: transform 0.3s;
-        border-radius: 0.5rem;
-        border: 1px solid rgba(0,0,0,.125);
+        transition: all 0.3s ease;
+        border-radius: 1rem;
+        border: none;
         background-color: #fff;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
     }
     
     .stats-card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.15);
     }
     
-    .chart-container {
-        position: relative;
-        height: 320px;
-        margin-bottom: 1rem;
+    /* 통계 카드 내부 스타일 */
+    .stats-card .card-body {
+        padding: 1.5rem;
     }
     
-    .performance-item {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: all 0.5s;
-    }
-    
-    .performance-item.show {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .table th {
+    .stats-title {
+        font-size: 0.9rem;
         font-weight: 600;
-        background-color: #f8f9fc;
+        color: #4e73df;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
     }
-
-    .table td {
-        vertical-align: middle;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(0,0,0,.02);
+    
+    .stats-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
     }
     
     .stats-change {
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
-        color: #333;
+        font-size: 0.85rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
     
     .stats-change .change-value {
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        background-color: rgba(78, 115, 223, 0.1);
         color: #4e73df;
     }
     
     .stats-change .change-value.increase {
+        background-color: rgba(231, 74, 59, 0.1);
         color: #e74a3b;
     }
     
     .stats-change i {
+        font-size: 0.8rem;
         margin-right: 0.25rem;
+    }
+    
+    /* 차트 컨테이너 스타일 */
+    .chart-container {
+        position: relative;
+        height: 320px;
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+    
+    .chart-card {
+        height: 100%;
+    }
+    
+    .chart-card h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* 테이블 스타일 개선 */
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table th {
+        font-weight: 600;
+        background-color: #f8f9fc;
+        border-bottom: 2px solid #e3e6f0;
+        padding: 1rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(78, 115, 223, 0.05);
+    }
+    
+    /* 로딩 애니메이션 */
+    .loading-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+    
+    /* 반응형 그리드 개선 */
+    @media (max-width: 768px) {
+        .stats-card {
+            margin-bottom: 1rem;
+        }
+        
+        .chart-container {
+            height: 250px;
+        }
+        
+        .table-responsive {
+            margin: 0 -1rem;
+            padding: 0 1rem;
+        }
     }
 </style>
 {% endblock %}
@@ -80,10 +181,10 @@
         <div class="col-xl-3 col-md-6">
             <div class="card stats-card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">총 매출</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sales|intcomma }}원</div>
+                            <div class="stats-title">총 매출</div>
+                            <div class="stats-value">{{ total_sales|intcomma }}원</div>
                             <div class="stats-change">
                                 전월대비 
                                 <span class="change-value {% if sales_change > 0 %}increase{% endif %}">
@@ -92,8 +193,8 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="stats-icon text-gray-300">
-                            <i class="fas fa-won-sign"></i>
+                        <div class="stats-icon">
+                            <i class="bi bi-currency-dollar fs-4 text-primary opacity-75"></i>
                         </div>
                     </div>
                 </div>
@@ -102,10 +203,10 @@
         <div class="col-xl-3 col-md-6">
             <div class="card stats-card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">총 관객수</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_audience|intcomma }}명</div>
+                            <div class="stats-title">총 관객수</div>
+                            <div class="stats-value">{{ total_audience|intcomma }}명</div>
                             <div class="stats-change">
                                 전월대비 
                                 <span class="change-value {% if audience_change > 0 %}increase{% endif %}">
@@ -114,8 +215,8 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="stats-icon text-gray-300">
-                            <i class="fas fa-users"></i>
+                        <div class="stats-icon">
+                            <i class="bi bi-people fs-4 text-success opacity-75"></i>
                         </div>
                     </div>
                 </div>
@@ -124,10 +225,10 @@
         <div class="col-xl-3 col-md-6">
             <div class="card stats-card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">평균 객석 점유율</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_occupancy }}%</div>
+                            <div class="stats-title">평균 객석 점유율</div>
+                            <div class="stats-value">{{ avg_occupancy }}%</div>
                             <div class="stats-change">
                                 전월대비 
                                 <span class="change-value {% if occupancy_change > 0 %}increase{% endif %}">
@@ -136,8 +237,8 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="stats-icon text-gray-300">
-                            <i class="fas fa-percent"></i>
+                        <div class="stats-icon">
+                            <i class="bi bi-percent fs-4 text-info opacity-75"></i>
                         </div>
                     </div>
                 </div>
@@ -146,10 +247,10 @@
         <div class="col-xl-3 col-md-6">
             <div class="card stats-card h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">진행중인 공연</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_performances }}개</div>
+                            <div class="stats-title">진행중인 공연</div>
+                            <div class="stats-value">{{ active_performances }}개</div>
                             <div class="stats-change">
                                 전월대비 
                                 <span class="change-value {% if performance_change > 0 %}increase{% endif %}">
@@ -158,8 +259,8 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="stats-icon text-gray-300">
-                            <i class="fas fa-theater-masks"></i>
+                        <div class="stats-icon">
+                            <i class="bi bi-theater fs-4 text-warning opacity-75"></i>
                         </div>
                     </div>
                 </div>
@@ -167,152 +268,123 @@
         </div>
     </div>
 
-    <!-- 차트 -->
-    <div class="row mb-4">
+    <!-- 차트 섹션 -->
+    <div class="row g-4 mb-4">
         <div class="col-xl-8">
-            <div class="stats-card p-4">
-                <h5 class="mb-4">월별 매출 추이</h5>
-                <div class="chart-container">
-                    <canvas id="monthlySalesChart"></canvas>
+            <div class="stats-card chart-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="mb-0">월별 매출 추이</h5>
+                        <div class="chart-filters">
+                            <select class="form-select form-select-sm">
+                                <option value="all">전체 기간</option>
+                                <option value="6">최근 6개월</option>
+                                <option value="12">최근 1년</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlySalesChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-4">
-            <div class="stats-card p-4">
-                <h5 class="mb-4">장르별 분포</h5>
-                <div class="chart-container">
-                    <canvas id="genreDistributionChart"></canvas>
+            <div class="stats-card chart-card">
+                <div class="card-body">
+                    <h5>장르별 분포</h5>
+                    <div class="chart-container">
+                        <canvas id="genreDistributionChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 장르별 통계 -->
-    <div class="stats-card p-4">
-        <h5 class="mb-4">장르별 통계</h5>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>장르</th>
-                        <th class="text-end">매출</th>
-                        <th class="text-end">관객수</th>
-                        <th class="text-end">평균 점유율</th>
-                        <th class="text-end">진행중인 공연</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>콘서트</td>
-                        <td class="text-end">₩{{ stats.concert.total_sales|intcomma }}</td>
-                        <td class="text-end">{{ stats.concert.total_audience|intcomma }}명</td>
-                        <td class="text-end">{{ stats.concert.avg_occupancy|floatformat:1 }}%</td>
-                        <td class="text-end">{{ stats.concert.active_count }}개</td>
-                    </tr>
-                    <tr>
-                        <td>뮤지컬</td>
-                        <td class="text-end">₩{{ stats.musical.total_sales|intcomma }}</td>
-                        <td class="text-end">{{ stats.musical.total_audience|intcomma }}명</td>
-                        <td class="text-end">{{ stats.musical.avg_occupancy|floatformat:1 }}%</td>
-                        <td class="text-end">{{ stats.musical.active_count }}개</td>
-                    </tr>
-                    <tr>
-                        <td>연극</td>
-                        <td class="text-end">₩{{ stats.play.total_sales|intcomma }}</td>
-                        <td class="text-end">{{ stats.play.total_audience|intcomma }}명</td>
-                        <td class="text-end">{{ stats.play.avg_occupancy|floatformat:1 }}%</td>
-                        <td class="text-end">{{ stats.play.active_count }}개</td>
-                    </tr>
-                    <tr>
-                        <td>전시</td>
-                        <td class="text-end">₩{{ stats.exhibition.total_sales|intcomma }}</td>
-                        <td class="text-end">{{ stats.exhibition.total_audience|intcomma }}명</td>
-                        <td class="text-end">{{ stats.exhibition.avg_occupancy|floatformat:1 }}%</td>
-                        <td class="text-end">{{ stats.exhibition.active_count }}개</td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- 장르별 통계 테이블 -->
+    <div class="stats-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">장르별 통계</h5>
+                <div class="table-filters">
+                    <input type="text" class="form-control form-control-sm" placeholder="장르 검색">
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>장르</th>
+                            <th class="text-end">매출</th>
+                            <th class="text-end">관객수</th>
+                            <th class="text-end">평균 점유율</th>
+                            <th class="text-end">전월 대비</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>콘서트</td>
+                            <td class="text-end">₩{{ stats.concert.total_sales|intcomma }}</td>
+                            <td class="text-end">{{ stats.concert.total_audience|intcomma }}명</td>
+                            <td class="text-end">{{ stats.concert.avg_occupancy|floatformat:1 }}%</td>
+                            <td class="text-end">{{ stats.concert.active_count }}개</td>
+                        </tr>
+                        <tr>
+                            <td>뮤지컬</td>
+                            <td class="text-end">₩{{ stats.musical.total_sales|intcomma }}</td>
+                            <td class="text-end">{{ stats.musical.total_audience|intcomma }}명</td>
+                            <td class="text-end">{{ stats.musical.avg_occupancy|floatformat:1 }}%</td>
+                            <td class="text-end">{{ stats.musical.active_count }}개</td>
+                        </tr>
+                        <tr>
+                            <td>연극</td>
+                            <td class="text-end">₩{{ stats.play.total_sales|intcomma }}</td>
+                            <td class="text-end">{{ stats.play.total_audience|intcomma }}명</td>
+                            <td class="text-end">{{ stats.play.avg_occupancy|floatformat:1 }}%</td>
+                            <td class="text-end">{{ stats.play.active_count }}개</td>
+                        </tr>
+                        <tr>
+                            <td>전시</td>
+                            <td class="text-end">₩{{ stats.exhibition.total_sales|intcomma }}</td>
+                            <td class="text-end">{{ stats.exhibition.total_audience|intcomma }}명</td>
+                            <td class="text-end">{{ stats.exhibition.avg_occupancy|floatformat:1 }}%</td>
+                            <td class="text-end">{{ stats.exhibition.active_count }}개</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_javascript %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Monthly Sales Chart
-    const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
-    new Chart(monthlySalesCtx, {
-        type: 'line',
-        data: {
-            labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-            datasets: [{
-                label: '매출 (원)',
-                data: {{ stats.all.monthly_sales|safe }},
-                borderColor: 'rgba(13, 110, 253, 1)',
-                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
+    document.addEventListener('DOMContentLoaded', function() {
+        // 기간 필터 토글
+        const periodButtons = document.querySelectorAll('[data-period]');
+        periodButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                periodButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                // TODO: 기간별 데이터 로드 로직 추가
+            });
+        });
+        
+        // 스크롤 애니메이션
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '₩' + value.toLocaleString();
-                        }
-                    }
-                }
-            }
-        }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        document.querySelectorAll('.stats-card').forEach(card => {
+            observer.observe(card);
+        });
     });
-
-    // Genre Distribution Chart
-    const genreDistributionCtx = document.getElementById('genreDistributionChart').getContext('2d');
-    new Chart(genreDistributionCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['콘서트', '뮤지컬', '연극', '전시'],
-            datasets: [{
-                data: [
-                    {{ stats.all.genre_distribution.concert }},
-                    {{ stats.all.genre_distribution.musical }},
-                    {{ stats.all.genre_distribution.play }},
-                    {{ stats.all.genre_distribution.exhibition }}
-                ],
-                backgroundColor: [
-                    'rgba(13, 110, 253, 0.8)',
-                    'rgba(25, 135, 84, 0.8)',
-                    'rgba(13, 202, 240, 0.8)',
-                    'rgba(255, 193, 7, 0.8)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20
-                    }
-                }
-            }
-        }
-    });
-});
 </script>
+{% endblock %}
 {% endblock %} 

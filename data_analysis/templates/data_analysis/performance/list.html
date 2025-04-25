@@ -69,7 +69,7 @@
                     </thead>
                     <tbody>
                         {% for performance in performances %}
-                        <tr>
+                        <tr class="cursor-pointer" onclick="window.location.href='{% url 'data_analysis:performance_detail' performance.pk %}'">
                             <td>
                                 <div class="d-flex align-items-center">
                                     {% if performance.poster %}
@@ -92,7 +92,7 @@
                             <td>{{ performance.running_time }}분</td>
                             <td>{{ performance.venue }}</td>
                             <td>
-                                <div class="btn-group">
+                                <div class="btn-group" onclick="event.stopPropagation();">
                                     <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-pencil"></i>
                                     </a>

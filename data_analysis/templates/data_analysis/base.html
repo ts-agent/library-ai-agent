@@ -429,7 +429,7 @@
                 <div class="collapse" id="dataMenu">
                     <div class="submenu">
                         <div class="submenu-section">
-                            <div class="submenu-title">기본 정보</div>
+                            <div class="submenu-title">공연</div>
                             <a href="{% url 'data_analysis:performance_list' %}" class="menu-item {% if request.resolver_match.url_name == 'performance_list' %}active{% endif %}">
                                 <i class="bi bi-ticket-perforated text-primary"></i>
                                 <span>공연 관리</span>
@@ -442,9 +442,6 @@
                                 <i class="bi bi-people text-success"></i>
                                 <span>캐스팅 관리</span>
                             </a>
-                        </div>
-                        <div class="submenu-section">
-                            <div class="submenu-title">매출/정산</div>
                             <a href="{% url 'data_analysis:seatgrade_list' %}" class="menu-item {% if request.resolver_match.url_name == 'seatgrade_list' %}active{% endif %}">
                                 <i class="bi bi-diagram-3 text-warning"></i>
                                 <span>좌석 등급</span>

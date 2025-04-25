@@ -59,11 +59,11 @@ urlpatterns = [
     path('performances/<int:pk>/marketing-calendar/events/<int:event_pk>/delete/', views.marketing_event_delete, name='marketing_event_delete'),
 
     # 크롤링 설정 관리
-    path('crawling/<int:performance_id>/add/', views.add_crawling_target, name='add_crawling_target'),
-    path('crawling/<int:target_id>/', views.get_crawling_target, name='get_crawling_target'),
-    path('crawling/<int:target_id>/update/', views.update_crawling_target, name='update_crawling_target'),
-    path('crawling/<int:target_id>/delete/', views.delete_crawling_target, name='delete_crawling_target'),
-    path('crawling/<int:target_id>/toggle/', views.toggle_crawling_target, name='toggle_crawling_target'),
+    path('performances/<int:pk>/crawling/add/', views.add_crawling_target, name='add_crawling_target'),
+    path('crawling/<int:target_pk>/', views.get_crawling_target, name='get_crawling_target'),
+    path('crawling/<int:target_pk>/update/', views.update_crawling_target, name='update_crawling_target'),
+    path('crawling/<int:target_pk>/delete/', views.delete_crawling_target, name='delete_crawling_target'),
+    path('crawling/<int:target_pk>/toggle/', views.toggle_crawling_target, name='toggle_crawling_target'),
 
     # superuser 생성 URL (비활성화)
     # path('create-admin/', views.create_super_user, name='create_super_user'),

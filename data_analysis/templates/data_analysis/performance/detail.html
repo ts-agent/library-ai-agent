@@ -429,7 +429,7 @@
                     <div class="mb-3">
                         <label class="form-label">색상</label>
                         <div class="color-select">
-                            <input type="text" class="form-control dropdown-toggle" readonly value="하늘색">
+                            <input type="text" class="form-control" readonly value="하늘색">
                             <input type="hidden" name="color" id="color" value="#a8deff" required>
                             <div class="color-preview">
                                 <span class="color-dot" style="background-color: #a8deff"></span>
@@ -514,7 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('selected');
             
             // 미리보기 업데이트
-            colorPreview.innerHTML = `<span class="color-dot" style="background-color: ${value}"></span><span>${label}</span>`;
+            colorPreview.innerHTML = `<span class="color-dot" style="background-color: ${value}"></span>`;
             
             // 값 설정
             colorInput.value = label;

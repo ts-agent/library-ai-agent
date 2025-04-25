@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, View, TemplateView
 from django.urls import reverse_lazy
 from django.http import JsonResponse, HttpResponse
-from django.db.models import F, Sum, Avg
+from django.db.models import F, Sum, Avg, Max
 from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, SettlementData, MarketingCalendar, MarketingEvent, CrawlingTarget
 from .forms import PerformanceForm
 from django.contrib import messages
@@ -19,6 +19,8 @@ from django.contrib.auth.models import User
 from django.conf import settings
 import os
 from django.utils import timezone
+import calendar
+from datetime import timedelta
 
 @login_required
 def index(request):
@@ -783,27 +785,31 @@ class ConcertDashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # 현재 시간 기준으로 진행중인 공연 필터링
+        now = timezone.now()
         performances = Performance.objects.filter(genre='concert')
+        active_performances = performances.filter(start_date__lte=now, end_date__gte=now)
+        active_performances_count = active_performances.count()
         
-        # 통계 데이터 계산
-        context['total_sales'] = float(performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0)
-        context['total_audience'] = performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0
-        context['avg_occupancy'] = float(performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0)
-        context['active_performances'] = performances.filter(end_date__gte=timezone.now()).count()
+        # 전월 동일 시점 진행중인 공연 수 계산
+        last_month = now - timedelta(days=30)
+        last_month_active = performances.filter(
+            start_date__lte=last_month,
+            end_date__gte=last_month
+        ).count()
         
-        # 차트 데이터 준비
-        sales_data = {
-            'labels': [p.name for p in performances[:10]],
-            'data': [float(p.total_sales) for p in performances[:10]]
-        }
-        audience_data = {
-            'labels': [p.name for p in performances[:10]],
-            'data': [p.total_audience for p in performances[:10]]
-        }
-        
-        context['sales_data'] = json.dumps(sales_data)
-        context['audience_data'] = json.dumps(audience_data)
-        context['performances'] = performances
+        # 전월 대비 증감률 계산
+        if last_month_active > 0:
+            performance_change = ((active_performances_count - last_month_active) / last_month_active) * 100
+        else:
+            performance_change = 0
+            
+        context.update({
+            'active_performances': active_performances,
+            'active_performances_count': active_performances_count,
+            'performance_change': performance_change,
+        })
         
         return context
 
@@ -812,13 +818,21 @@ class MusicalDashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        now = timezone.now()
         performances = Performance.objects.filter(genre='musical')
         
         # 통계 데이터 계산
         context['total_sales'] = performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0
         context['total_audience'] = performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0
         context['avg_occupancy'] = performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0
-        context['active_performances'] = performances.filter(end_date__gte=timezone.now()).count()
+        
+        # 진행중인 공연 QuerySet
+        active_performances = performances.filter(
+            start_date__lte=now,
+            end_date__gte=now
+        )
+        context['active_performances'] = active_performances
+        context['active_performances_count'] = active_performances.count()
         
         # 차트 데이터 준비
         sales_data = {
@@ -841,13 +855,21 @@ class PlayDashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        now = timezone.now()
         performances = Performance.objects.filter(genre='play')
         
         # 통계 데이터 계산
         context['total_sales'] = performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0
         context['total_audience'] = performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0
         context['avg_occupancy'] = performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0
-        context['active_performances'] = performances.filter(end_date__gte=timezone.now()).count()
+        
+        # 진행중인 공연 QuerySet
+        active_performances = performances.filter(
+            start_date__lte=now,
+            end_date__gte=now
+        )
+        context['active_performances'] = active_performances
+        context['active_performances_count'] = active_performances.count()
         
         # 차트 데이터 준비
         sales_data = {
@@ -870,13 +892,21 @@ class ExhibitionDashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        now = timezone.now()
         performances = Performance.objects.filter(genre='exhibition')
         
         # 통계 데이터 계산
         context['total_sales'] = performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0
         context['total_audience'] = performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0
         context['avg_occupancy'] = performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0
-        context['active_performances'] = performances.filter(end_date__gte=timezone.now()).count()
+        
+        # 진행중인 공연 QuerySet
+        active_performances = performances.filter(
+            start_date__lte=now,
+            end_date__gte=now
+        )
+        context['active_performances'] = active_performances
+        context['active_performances_count'] = active_performances.count()
         
         # 차트 데이터 준비
         sales_data = {
@@ -893,3 +923,152 @@ class ExhibitionDashboardView(LoginRequiredMixin, TemplateView):
         context['performances'] = performances
         
         return context
+
+@login_required
+def performance_dashboard(request, pk):
+    performance = get_object_or_404(Performance, pk=pk)
+    
+    # 기본 기간은 월간으로 설정
+    period = request.GET.get('period', 'monthly')
+    
+    # 대시보드 데이터 가져오기
+    dashboard_data = get_dashboard_data(performance, period)
+    
+    context = {
+        'performance': performance,
+        'total_amount': dashboard_data['total_amount'],
+        'target_amount': dashboard_data['target_amount'],
+        'sales_achievement': dashboard_data['sales_achievement'],
+        'total_sales_count': dashboard_data['total_sales_count'],
+        'average_ticket_price': dashboard_data['average_ticket_price'],
+        'sales_count_growth': dashboard_data['sales_count_growth'],
+        'total_occupancy_rate': dashboard_data['total_occupancy_rate'],
+        'paid_rate': dashboard_data['paid_rate'],
+        'free_rate': dashboard_data['free_rate'],
+        'price_growth': dashboard_data['price_growth'],
+        'max_ticket_price': dashboard_data['max_ticket_price'],
+        'date_labels': json.dumps(dashboard_data['date_labels']),
+        'sales_data': json.dumps(dashboard_data['sales_data']),
+        'target_data': json.dumps(dashboard_data['target_data']),
+        'total_occupancy_data': json.dumps(dashboard_data['total_occupancy_data']),
+        'paid_rate_data': json.dumps(dashboard_data['paid_rate_data']),
+        'free_rate_data': json.dumps(dashboard_data['free_rate_data']),
+    }
+    
+    # 전시가 아닌 경우 캐스팅별 매출 데이터 추가
+    if performance.genre != 'exhibition':
+        context.update({
+            'casting_labels': json.dumps(dashboard_data['casting_labels']),
+            'casting_sales_data': json.dumps(dashboard_data['casting_sales_data']),
+        })
+    
+    return render(request, 'data_analysis/performance/dashboard.html', context)
+
+def get_dashboard_data(performance, period):
+    today = timezone.now().date()
+    
+    # 기간에 따른 날짜 범위 설정
+    if period == 'daily':
+        start_date = today - timezone.timedelta(days=30)
+        date_format = '%Y-%m-%d'
+    elif period == 'weekly':
+        start_date = today - timezone.timedelta(weeks=12)
+        date_format = '%Y-%m-%d'
+    else:  # monthly
+        start_date = today - timezone.timedelta(days=365)
+        date_format = '%Y-%m'
+    
+    # 판매 데이터 쿼리
+    sales_data = SalesData.objects.filter(
+        performance=performance,
+        uploaded_at__date__gte=start_date
+    ).order_by('uploaded_at')
+    
+    # 이전 달의 데이터
+    last_month = today.replace(day=1) - timezone.timedelta(days=1)
+    last_month_data = SalesData.objects.filter(
+        performance=performance,
+        uploaded_at__year=last_month.year,
+        uploaded_at__month=last_month.month
+    ).order_by('-uploaded_at').first()
+    
+    # 현재 달의 데이터
+    current_month_data = SalesData.objects.filter(
+        performance=performance,
+        uploaded_at__year=today.year,
+        uploaded_at__month=today.month
+    ).order_by('-uploaded_at').first()
+    
+    # 기간별 데이터 집계
+    date_labels = []
+    sales_amounts = []
+    target_amounts = []
+    total_occupancy_rates = []
+    paid_rates = []
+    free_rates = []
+    
+    for data in sales_data:
+        date_str = data.uploaded_at.strftime(date_format)
+        if date_str not in date_labels:
+            date_labels.append(date_str)
+            sales_amounts.append(float(data.total_amount))
+            target_amounts.append(float(data.target_amount))
+            total_occupancy_rates.append(float(data.total_occupancy_rate))
+            paid_rates.append(float(data.paid_rate))
+            free_rates.append(float(data.free_rate))
+    
+    # 성장률 계산
+    sales_count_growth = 0
+    price_growth = 0
+    if last_month_data and current_month_data:
+        if last_month_data.total_sales_count > 0:
+            sales_count_growth = round((current_month_data.total_sales_count - last_month_data.total_sales_count) / last_month_data.total_sales_count * 100, 1)
+        if last_month_data.average_ticket_price > 0:
+            price_growth = round((current_month_data.average_ticket_price - last_month_data.average_ticket_price) / last_month_data.average_ticket_price * 100, 1)
+    
+    # 최신 데이터
+    latest_data = sales_data.last() if sales_data.exists() else None
+    
+    # 캐스팅별 매출 데이터 (전시 제외)
+    casting_data = {}
+    if performance.genre != 'exhibition':
+        castings = performance.castings.all()
+        for casting in castings:
+            casting_sales = sales_data.filter(
+                uploaded_at__date__gte=start_date
+            ).aggregate(
+                total_amount=Sum('total_amount')
+            )['total_amount'] or 0
+            casting_data[str(casting)] = float(casting_sales)
+    
+    # 기본 응답 데이터
+    response_data = {
+        'total_amount': float(latest_data.total_amount) if latest_data else 0,
+        'target_amount': float(latest_data.target_amount) if latest_data else 0,
+        'sales_achievement': round(float(latest_data.total_amount / latest_data.target_amount * 100), 1) if latest_data and latest_data.target_amount > 0 else 0,
+        'total_sales_count': latest_data.total_sales_count if latest_data else 0,
+        'average_ticket_price': float(latest_data.average_ticket_price) if latest_data else 0,
+        'sales_count_growth': sales_count_growth,
+        'sales_count_growth_abs': abs(sales_count_growth),  # 절대값 추가
+        'total_occupancy_rate': float(latest_data.total_occupancy_rate) if latest_data else 0,
+        'paid_rate': float(latest_data.paid_rate) if latest_data else 0,
+        'free_rate': float(latest_data.free_rate) if latest_data else 0,
+        'price_growth': price_growth,
+        'price_growth_abs': abs(price_growth),  # 절대값 추가
+        'max_ticket_price': float(sales_data.aggregate(max_price=Max('average_ticket_price'))['max_price'] or 0),
+        'date_labels': date_labels,
+        'sales_data': sales_amounts,
+        'target_data': target_amounts,
+        'total_occupancy_data': total_occupancy_rates,
+        'paid_rate_data': paid_rates,
+        'free_rate_data': free_rates,
+    }
+    
+    # 전시가 아닌 경우 캐스팅 데이터 추가
+    if performance.genre != 'exhibition':
+        response_data.update({
+            'casting_labels': list(casting_data.keys()),
+            'casting_sales_data': list(casting_data.values()),
+        })
+    
+    return response_data

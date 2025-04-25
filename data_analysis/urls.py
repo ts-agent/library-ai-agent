@@ -73,4 +73,5 @@ urlpatterns = [
     path('musical/', views.MusicalDashboardView.as_view(), name='musical_dashboard'),
     path('play/', views.PlayDashboardView.as_view(), name='play_dashboard'),
     path('exhibition/', views.ExhibitionDashboardView.as_view(), name='exhibition_dashboard'),
+    path('performance/<int:pk>/dashboard/', views.performance_dashboard, name='performance_dashboard'),
 ]

@@ -76,6 +76,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'data_analysis.context_processors.sidebar_context',
             ],
             'builtins': [
                 'crispy_forms.templatetags.crispy_forms_tags',

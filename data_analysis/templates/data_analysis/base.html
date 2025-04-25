@@ -172,6 +172,30 @@
             color: #fff;
             background: #dc3545;
         }
+
+        .submenu-section {
+            margin-bottom: 1rem;
+        }
+
+        .submenu-title {
+            padding: 0.5rem 1.5rem 0.25rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .submenu-section:not(:last-child) {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 0.5rem;
+        }
+
+        .submenu .menu-item i {
+            font-size: 1rem;
+            width: 1.2rem;
+            text-align: center;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -190,11 +214,11 @@
     <!-- 사이드바 -->
     <aside class="sidebar">
         <nav class="sidebar-menu">
-            <!-- 홈 메뉴 -->
+            <!-- 전체 메뉴 -->
             <div class="menu-section">
                 <a href="{% url 'data_analysis:index' %}" class="menu-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                     <i class="bi bi-house-door"></i>
-                    <span>홈</span>
+                    <span>전체</span>
                 </a>
             </div>
 
@@ -222,6 +246,63 @@
                             <i class="bi bi-image"></i>
                             <span>전시</span>
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 공연별 대시보드 드롭다운 -->
+            <div class="menu-section">
+                <a href="#" class="menu-item menu-toggle" data-bs-toggle="collapse" data-bs-target="#performanceMenu" aria-expanded="false">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>공연별 대시보드</span>
+                </a>
+                <div class="collapse" id="performanceMenu">
+                    <div class="submenu">
+                        {% if upcoming_performances %}
+                        <div class="submenu-section">
+                            <div class="submenu-title">공연 예정</div>
+                            {% for performance in upcoming_performances %}
+                            <a href="{% url 'data_analysis:performance_dashboard' performance.pk %}" 
+                               class="menu-item {% if request.resolver_match.url_name == 'performance_dashboard' and request.resolver_match.kwargs.pk == performance.pk %}active{% endif %}">
+                                <i class="bi bi-calendar-check text-primary"></i>
+                                <span>{{ performance.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if ongoing_performances %}
+                        <div class="submenu-section">
+                            <div class="submenu-title">공연 중</div>
+                            {% for performance in ongoing_performances %}
+                            <a href="{% url 'data_analysis:performance_dashboard' performance.pk %}" 
+                               class="menu-item {% if request.resolver_match.url_name == 'performance_dashboard' and request.resolver_match.kwargs.pk == performance.pk %}active{% endif %}">
+                                <i class="bi bi-play-circle text-success"></i>
+                                <span>{{ performance.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if completed_performances %}
+                        <div class="submenu-section">
+                            <div class="submenu-title">공연 종료</div>
+                            {% for performance in completed_performances %}
+                            <a href="{% url 'data_analysis:performance_dashboard' performance.pk %}" 
+                               class="menu-item {% if request.resolver_match.url_name == 'performance_dashboard' and request.resolver_match.kwargs.pk == performance.pk %}active{% endif %}">
+                                <i class="bi bi-check-circle text-secondary"></i>
+                                <span>{{ performance.name }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if not upcoming_performances and not ongoing_performances and not completed_performances %}
+                        <div class="menu-item text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            <span>등록된 공연이 없습니다</span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

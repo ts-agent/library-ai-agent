@@ -135,6 +135,17 @@ class SalesData(models.Model):
     file = models.FileField(upload_to='sales_data/%Y/%m/', verbose_name='판매현황 파일')
     uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='업로드 일시')
     description = models.CharField(max_length=200, blank=True, verbose_name='설명')
+    
+    # 판매량 및 점유율
+    total_sales_count = models.PositiveIntegerField(default=0, verbose_name='총 판매량')
+    paid_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name='유료 점유율')
+    free_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name='무료 점유율')
+    total_occupancy_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0, verbose_name='전체 점유율')
+    
+    # 매출 관련
+    target_amount = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name='목표 매출')
+    total_amount = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name='총 매출액')
+    average_ticket_price = models.DecimalField(max_digits=10, decimal_places=0, default=0, verbose_name='객단가')
 
     class Meta:
         verbose_name = '판매현황'

@@ -198,6 +198,4 @@ else:
     # 로컬 개발 환경
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     MEDIA_URL = '/media/'
-
-# 미디어 파일 설정
-MEDIA_ROOT = BASE_DIR / 'media'
+    MEDIA_ROOT = BASE_DIR / 'media'

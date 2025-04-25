@@ -42,6 +42,10 @@ handlers:
   static_dir: static/
   secure: always
 
+- url: /media
+  static_dir: media/
+  secure: always
+
 - url: /.*
   script: auto
   secure: always 

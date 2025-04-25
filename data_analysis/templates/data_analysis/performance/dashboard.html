@@ -6,59 +6,121 @@
 {% block extra_css %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud.min.css" rel="stylesheet">
 <style>
+    /* Font System */
+    body {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    /* Stats Card */
     .stats-card {
         background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
         padding: 1.5rem;
         height: 100%;
-        transition: transform 0.2s;
+        transition: all 0.2s ease-in-out;
     }
+
     .stats-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
     }
+
     .stats-title {
-        color: #6c757d;
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+        color: #4B5563;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.75rem;
     }
+
     .stats-value {
         font-size: 1.5rem;
-        font-weight: bold;
-        color: #212529;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.5rem;
     }
+
     .stats-subtitle {
-        font-size: 0.8rem;
-        color: #adb5bd;
+        font-size: 0.875rem;
+        color: #6B7280;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
+
+    /* Progress Bar */
     .progress {
         height: 8px;
         margin-top: 1rem;
+        background-color: #F3F4F6;
+        border-radius: 4px;
+        overflow: hidden;
     }
+
     .progress-bar {
         border-radius: 4px;
+        transition: width 0.3s ease-in-out;
     }
+
+    /* Chart Container */
     .chart-container {
         background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
         padding: 1.5rem;
         margin-bottom: 1.5rem;
+        transition: all 0.2s ease-in-out;
     }
+
+    .chart-container:hover {
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-container h5 {
+        color: #111827;
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Period Selector */
     .period-selector {
         margin-bottom: 2rem;
     }
+
     .period-selector .btn {
-        border-radius: 20px;
-        padding: 0.5rem 1.5rem;
+        border-radius: 8px;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
     }
+
+    .period-selector .btn-outline-primary {
+        color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .period-selector .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        color: white;
+        transform: translateY(-1px);
+    }
+
     .period-selector .btn.active {
         background-color: #0d6efd;
         color: white;
+        font-weight: 600;
     }
+
+    /* Growth Indicators */
     .growth-positive {
-        color: #198754;
+        color: #10B981;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
     }
+
     .growth-negative {
         color: #dc3545;
     }
@@ -237,6 +299,89 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.4/jqcloud.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // 기간 선택 버튼 이벤트 처리
+    const periodButtons = document.querySelectorAll('.period-selector .btn');
+    periodButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // 모든 버튼에서 active 클래스 제거
+            periodButtons.forEach(btn => btn.classList.remove('active'));
+            // 클릭된 버튼에 active 클래스 추가
+            this.classList.add('active');
+            
+            // 선택된 기간 값 가져오기
+            const period = this.dataset.period;
+            
+            // 여기에 기간별 데이터 요청 및 차트 업데이트 로직 추가
+            updateChartsByPeriod(period);
+        });
+    });
+
+    // 기간별 차트 업데이트 함수
+    function updateChartsByPeriod(period) {
+        // AJAX 요청을 통해 서버에서 데이터 가져오기
+        fetch(`{% url 'data_analysis:performance_dashboard' performance.pk %}?period=${period}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 차트 데이터 업데이트
+            updateSalesChart(data.sales_data, data.date_labels);
+            updateOccupancyChart(data.total_occupancy_data, data.date_labels);
+            if (data.casting_data) {
+                updateCastingChart(data.casting_data);
+            }
+            
+            // 통계 카드 업데이트
+            updateStatsCards(data);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // 매출 차트 업데이트 함수
+    function updateSalesChart(salesData, labels) {
+        salesChart.data.labels = labels;
+        salesChart.data.datasets[0].data = salesData;
+        salesChart.update();
+    }
+
+    // 점유율 차트 업데이트 함수
+    function updateOccupancyChart(occupancyData, labels) {
+        occupancyChart.data.labels = labels;
+        occupancyChart.data.datasets[0].data = occupancyData;
+        occupancyChart.update();
+    }
+
+    // 캐스팅 차트 업데이트 함수
+    function updateCastingChart(castingData) {
+        if (castingChart) {
+            castingChart.data.datasets[0].data = castingData;
+            castingChart.update();
+        }
+    }
+
+    // 통계 카드 업데이트 함수
+    function updateStatsCards(data) {
+        // 매출 현황
+        document.querySelector('.stats-card:nth-child(1) .stats-value').textContent = 
+            Number(data.total_amount).toLocaleString() + '원';
+        document.querySelector('.stats-card:nth-child(1) .progress-bar').style.width = 
+            data.sales_achievement + '%';
+        
+        // 판매량
+        document.querySelector('.stats-card:nth-child(2) .stats-value').textContent = 
+            Number(data.total_sales_count).toLocaleString() + '매';
+        
+        // 점유율
+        document.querySelector('.stats-card:nth-child(3) .stats-value').textContent = 
+            data.total_occupancy_rate + '%';
+        
+        // 객단가
+        document.querySelector('.stats-card:nth-child(4) .stats-value').textContent = 
+            Number(data.average_ticket_price).toLocaleString() + '원';
+    }
+
     // 데이터 준비
     const dateLabels = {{ date_labels|safe }};
     const salesData = {{ sales_data|safe }};
@@ -245,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const paidRateData = {{ paid_rate_data|safe }};
     const freeRateData = {{ free_rate_data|safe }};
 
-    // 매출 차트
+    // 매출 차트 초기화
     const salesChart = new Chart(document.getElementById('salesChart'), {
         type: 'line',
         data: {
@@ -411,18 +556,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // 기간 선택 버튼 이벤트
-    document.querySelectorAll('.period-selector .btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const period = this.dataset.period;
-            document.querySelectorAll('.period-selector .btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            this.classList.add('active');
-            window.location.href = `?period=${period}`;
-        });
-    });
 });
 </script>
 {% endblock %} 

@@ -5,72 +5,230 @@
 
 {% block page_title %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0 text-gray-800">전시 대시보드</h1>
+    <h1 class="h3 mb-0">전시 대시보드</h1>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
     .stats-card {
-        border-radius: 0.35rem;
+        border-radius: 12px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-        transition: transform 0.2s;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .stats-card:hover {
-        transform: translateY(-3px);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
     }
     
     .stats-icon {
-        font-size: 2rem;
-        opacity: 0.4;
+        font-size: 2.25rem;
+        opacity: 0.7;
+        color: #3B82F6;
+        transition: transform 0.2s ease;
+    }
+
+    .stats-card:hover .stats-icon {
+        transform: scale(1.1);
     }
     
     .chart-area {
         height: 320px;
         margin: 0 auto;
+        padding: 1rem;
     }
     
     .performance-list {
         max-height: 600px;
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #E5E7EB transparent;
+    }
+    
+    .performance-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .performance-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .performance-list::-webkit-scrollbar-thumb {
+        background-color: #E5E7EB;
+        border-radius: 3px;
     }
     
     .performance-item {
-        transition: background-color 0.3s;
-        padding: 1rem;
-        border-bottom: 1px solid #e3e6f0;
+        transition: all 0.2s ease;
+        padding: 1.25rem;
+        border-bottom: 1px solid #F3F4F6;
+        cursor: pointer;
     }
     
     .performance-item:hover {
-        background-color: #f8f9fc;
+        background-color: #F9FAFB;
     }
     
     .text-xs {
-        font-size: 0.7rem;
+        font-size: 0.813rem;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        text-transform: none;
     }
     
     .text-primary {
-        color: #4e73df !important;
+        color: #3B82F6 !important;
+    }
+
+    .text-success {
+        color: #059669 !important;
+    }
+
+    .text-info {
+        color: #0EA5E9 !important;
+    }
+
+    .text-warning {
+        color: #F59E0B !important;
     }
     
     .stats-change {
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
-        color: #333; /* 전월대비 텍스트 색상을 검정색으로 변경 */
+        font-size: 0.875rem;
+        margin-top: 0.75rem;
+        color: #4B5563;
+        font-weight: 400;
     }
     
     .stats-change .change-value {
-        color: #4e73df; /* 감소시 파란색 */
+        color: #059669;
+        font-weight: 500;
     }
     
     .stats-change .change-value.increase {
-        color: #e74a3b; /* 증가시 빨간색 */
+        color: #DC2626;
     }
     
     .stats-change i {
-        margin-right: 0.25rem;
+        margin-right: 0.375rem;
+        font-size: 0.75rem;
+    }
+
+    .card {
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid #F3F4F6;
+        padding: 1.25rem;
+    }
+
+    .card-header h6 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #111827;
+        letter-spacing: -0.01em;
+        margin: 0;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .h5 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #111827;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+        font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    }
+
+    .font-weight-bold {
+        font-weight: 600 !important;
+    }
+
+    .text-gray-800 {
+        color: #1F2937 !important;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        font-weight: 500;
+        color: #6B7280;
+        border-bottom: 2px solid #F3F4F6;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .table td {
+        padding: 1rem 1.25rem;
+        color: #111827;
+        border-bottom: 1px solid #F3F4F6;
+        vertical-align: middle;
+    }
+
+    .dropdown-menu {
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 0.5rem;
+    }
+
+    .dropdown-item {
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: #374151;
+        transition: all 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+        background-color: #F3F4F6;
+        color: #111827;
+    }
+
+    @media (max-width: 768px) {
+        .stats-card {
+            margin-bottom: 1rem;
+        }
+
+        .chart-area {
+            height: 280px;
+        }
+
+        .h5 {
+            font-size: 1.25rem;
+        }
+
+        .stats-icon {
+            font-size: 1.75rem;
+        }
+
+        .card-header {
+            padding: 1rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .table td, 
+        .table th {
+            padding: 0.75rem 1rem;
+        }
     }
 </style>
 {% endblock %}

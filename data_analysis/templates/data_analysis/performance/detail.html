@@ -514,18 +514,17 @@
     </div>
 
     <!-- 마케팅 캘린더 -->
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title mb-0">마케팅 캘린더</h5>
-                <button type="button" 
-                        class="btn btn-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#addEventModal">
-                    <i class="bi bi-plus-lg me-1"></i>일정 추가
-                </button>
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title d-flex justify-content-between align-items-center">
+                    마케팅 캘린더
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                        <i class="fas fa-plus me-1"></i> 일정 추가
+                    </button>
+                </h5>
+                <div id="calendar" class="calendar-section"></div>
             </div>
-            <div id="marketingCalendar" class="calendar-section"></div>
         </div>
     </div>
 </div>
@@ -543,8 +542,14 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="platform" class="form-label">플랫폼</label>
-                        <input type="text" class="form-control" id="platform" name="platform" required>
-                        <div class="form-text">예: 인터파크티켓, 티켓링크, 인스타그램</div>
+                        <select class="form-select" id="platform" name="platform" required>
+                            <option value="">플랫폼 선택</option>
+                            <option value="NOL티켓">NOL티켓</option>
+                            <option value="인스타그램">인스타그램</option>
+                            <option value="페이스북">페이스북</option>
+                            <option value="X">X</option>
+                            <option value="유튜브">유튜브</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="url" class="form-label">URL</label>
@@ -577,7 +582,14 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="edit_platform" class="form-label">플랫폼</label>
-                        <input type="text" class="form-control" id="edit_platform" name="platform" required>
+                        <select class="form-select" id="edit_platform" name="platform" required>
+                            <option value="">플랫폼 선택</option>
+                            <option value="NOL티켓">NOL티켓</option>
+                            <option value="인스타그램">인스타그램</option>
+                            <option value="페이스북">페이스북</option>
+                            <option value="X">X</option>
+                            <option value="유튜브">유튜브</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="edit_url" class="form-label">URL</label>
@@ -597,7 +609,7 @@
     </div>
 </div>
 
-<!-- 마케팅 일정 추가 모달 -->
+<!-- 일정 추가 모달 -->
 <div class="modal fade" id="addEventModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -605,76 +617,150 @@
                 <h5 class="modal-title">마케팅 일정 추가</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{% url 'data_analysis:marketing_event_create' performance.pk %}" method="post">
+            <form action="{% url 'data_analysis:marketing_event_create' performance.id %}" method="post">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="title" class="form-label">일정 제목</label>
-                        <input type="text" class="form-control" id="title" name="title" required>
+                        <label class="form-label">일정 제목</label>
+                        <input type="text" name="title" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label for="tag" class="form-label">태그</label>
-                        <select class="form-select" id="tag" name="tag" required>
-                            <option value="promotion">프로모션</option>
-                            <option value="marketing">마케팅</option>
-                            <option value="press">언론보도</option>
-                            <option value="event">이벤트</option>
-                            <option value="sns">SNS</option>
-                            <option value="other">기타</option>
+                        <label class="form-label">설명</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">시작일</label>
+                            <input type="date" name="start_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">종료일</label>
+                            <input type="date" name="end_date" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">태그</label>
+                        <select name="tag" class="form-select">
+                            <option value="프로모션">프로모션</option>
+                            <option value="SNS">SNS</option>
+                            <option value="언론 홍보">언론 홍보</option>
+                            <option value="유튜브">유튜브</option>
+                            <option value="라디오">라디오</option>
+                            <option value="이벤트">이벤트</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">색상</label>
                         <div class="color-select">
-                            <input type="text" class="form-control" readonly value="하늘색">
-                            <input type="hidden" name="color" id="color" value="#a8deff" required>
+                            <select name="color" class="form-control">
+                                <option value="#4F46E5">파란색</option>
+                                <option value="#10B981">초록색</option>
+                                <option value="#F59E0B">주황색</option>
+                                <option value="#EF4444">빨간색</option>
+                                <option value="#8B5CF6">보라색</option>
+                            </select>
                             <div class="color-preview">
-                                <span class="color-dot" style="background-color: #a8deff"></span>
-                            </div>
-                            <div class="color-dropdown">
-                                <div class="color-option selected" data-value="#a8deff" data-label="하늘색">
-                                    <span class="color-dot" style="background-color: #a8deff"></span>
-                                    <span>하늘색</span>
-                                </div>
-                                <div class="color-option" data-value="#ff8a8a" data-label="빨간색">
-                                    <span class="color-dot" style="background-color: #ff8a8a"></span>
-                                    <span>빨간색</span>
-                                </div>
-                                <div class="color-option" data-value="#a8ff8f" data-label="초록색">
-                                    <span class="color-dot" style="background-color: #a8ff8f"></span>
-                                    <span>초록색</span>
-                                </div>
-                                <div class="color-option" data-value="#ffdc73" data-label="노란색">
-                                    <span class="color-dot" style="background-color: #ffdc73"></span>
-                                    <span>노란색</span>
-                                </div>
-                                <div class="color-option" data-value="#d9a8ff" data-label="보라색">
-                                    <span class="color-dot" style="background-color: #d9a8ff"></span>
-                                    <span>보라색</span>
-                                </div>
-                                <div class="color-option" data-value="#ffc4a8" data-label="주황색">
-                                    <span class="color-dot" style="background-color: #ffc4a8"></span>
-                                    <span>주황색</span>
-                                </div>
+                                <div class="color-dot"></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="start_date" class="form-label">시작일</label>
-                        <input type="date" class="form-control" id="start_date" name="start_date" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="end_date" class="form-label">종료일</label>
-                        <input type="date" class="form-control" id="end_date" name="end_date" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">설명</label>
-                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="submit" class="btn btn-primary">추가</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 일정 상세 모달 -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">일정 상세</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="eventTitle" class="mb-3"></h6>
+                <p id="eventDescription" class="text-muted mb-3"></p>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge me-2" id="eventTag"></span>
+                    <small class="text-muted" id="eventDate"></small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteEventForm" method="post" class="me-auto">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger">삭제</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary" id="editEventBtn">수정</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 일정 수정 모달 -->
+<div class="modal fade" id="editEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">마케팅 일정 수정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editEventForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">일정 제목</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">설명</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">시작일</label>
+                            <input type="date" name="start_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">종료일</label>
+                            <input type="date" name="end_date" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">태그</label>
+                        <select name="tag" class="form-select">
+                            <option value="프로모션">프로모션</option>
+                            <option value="SNS">SNS</option>
+                            <option value="언론 홍보">언론 홍보</option>
+                            <option value="유튜브">유튜브</option>
+                            <option value="라디오">라디오</option>
+                            <option value="이벤트">이벤트</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">색상</label>
+                        <div class="color-select">
+                            <select name="color" class="form-control">
+                                <option value="#4F46E5">파란색</option>
+                                <option value="#10B981">초록색</option>
+                                <option value="#F59E0B">주황색</option>
+                                <option value="#EF4444">빨간색</option>
+                                <option value="#8B5CF6">보라색</option>
+                            </select>
+                            <div class="color-preview">
+                                <div class="color-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
                 </div>
             </form>
         </div>
@@ -684,106 +770,100 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 색상 선택 초기화
-    const colorSelect = document.querySelector('.color-select');
-    const colorInput = colorSelect.querySelector('input[type="text"]');
-    const colorValue = colorSelect.querySelector('input[type="hidden"]');
-    const colorDropdown = colorSelect.querySelector('.color-dropdown');
-    const colorOptions = colorSelect.querySelectorAll('.color-option');
-    const colorPreview = colorSelect.querySelector('.color-preview');
-
-    // 드롭다운 토글
-    colorInput.addEventListener('click', function() {
-        colorDropdown.classList.toggle('show');
-    });
-
-    // 색상 옵션 선택
-    colorOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            const value = this.dataset.value;
-            const label = this.dataset.label;
-            
-            // 선택된 옵션 표시
-            colorOptions.forEach(opt => opt.classList.remove('selected'));
-            this.classList.add('selected');
-            
-            // 미리보기 업데이트
-            colorPreview.innerHTML = `<span class="color-dot" style="background-color: ${value}"></span>`;
-            
-            // 값 설정
-            colorInput.value = label;
-            colorValue.value = value;
-            
-            // 드롭다운 닫기
-            colorDropdown.classList.remove('show');
-        });
-    });
-
-    // 외부 클릭 시 드롭다운 닫기
-    document.addEventListener('click', function(event) {
-        if (!colorSelect.contains(event.target)) {
-            colorDropdown.classList.remove('show');
-        }
-    });
-
-    // 마케팅 캘린더 초기화
-    var calendarEl = document.getElementById('marketingCalendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        locale: 'ko',
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            right: ''
         },
-        events: "{% url 'data_analysis:marketing_calendar' performance.pk %}",
-        editable: true,
+        locale: 'ko',
+        events: Object.entries(JSON.parse('{{ events_json|safe }}')).map(([date, events]) => 
+            events.map(event => ({
+                id: event.id,
+                title: event.title,
+                start: event.start_date,
+                end: event.end_date,
+                description: event.description,
+                tag: event.tag,
+                color: event.color,
+                backgroundColor: event.color,
+                borderColor: event.color
+            }))
+        ).flat(),
         eventClick: function(info) {
-            if (confirm('이 일정을 삭제하시겠습니까?')) {
-                fetch("{% url 'data_analysis:marketing_event_delete' pk=performance.pk event_pk=0 %}".replace('0', info.event.id), {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                }).then(response => {
-                    if (response.ok) {
-                        info.event.remove();
-                    }
-                });
-            }
-        },
-        eventDrop: function(info) {
-            updateEvent(info.event);
-        },
-        eventResize: function(info) {
-            updateEvent(info.event);
+            const event = info.event;
+            const modal = document.getElementById('eventDetailModal');
+            const modalInstance = new bootstrap.Modal(modal);
+            
+            // 모달 내용 업데이트
+            modal.querySelector('#eventTitle').textContent = event.title;
+            modal.querySelector('#eventDescription').textContent = event.extendedProps.description || '설명 없음';
+            modal.querySelector('#eventTag').textContent = event.extendedProps.tag;
+            modal.querySelector('#eventTag').style.backgroundColor = event.backgroundColor;
+            modal.querySelector('#eventDate').textContent = `${event.start.toLocaleDateString()} ~ ${event.end.toLocaleDateString()}`;
+            
+            // 삭제 폼 설정
+            const deleteForm = modal.querySelector('#deleteEventForm');
+            deleteForm.action = `/data_analysis/performances/{{ performance.id }}/marketing-calendar/events/${event.id}/delete/`;
+            
+            // 수정 버튼 이벤트 핸들러
+            const editBtn = modal.querySelector('#editEventBtn');
+            editBtn.onclick = function() {
+                modalInstance.hide();
+                showEditEventModal(event);
+            };
+            
+            modalInstance.show();
         }
     });
     calendar.render();
-
-    // 이벤트 업데이트 함수
-    function updateEvent(event) {
-        const url = "{% url 'data_analysis:marketing_event_update' pk=performance.pk event_pk=0 %}".replace(/0$/, event.id);
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({
-                start: event.start.toISOString(),
-                end: event.end ? event.end.toISOString() : event.start.toISOString()
-            })
-        });
+    
+    // 색상 선택 미리보기 (추가 모달)
+    const colorSelect = document.querySelector('#addEventModal select[name="color"]');
+    const colorDot = document.querySelector('#addEventModal .color-dot');
+    
+    function updateColorPreview(select, dot) {
+        dot.style.backgroundColor = select.value;
+    }
+    
+    colorSelect.addEventListener('change', () => updateColorPreview(colorSelect, colorDot));
+    updateColorPreview(colorSelect, colorDot);
+    
+    // 색상 선택 미리보기 (수정 모달)
+    const editColorSelect = document.querySelector('#editEventModal select[name="color"]');
+    const editColorDot = document.querySelector('#editEventModal .color-dot');
+    
+    editColorSelect.addEventListener('change', () => updateColorPreview(editColorSelect, editColorDot));
+    
+    // 일정 수정 모달 표시 함수
+    function showEditEventModal(event) {
+        const modal = document.getElementById('editEventModal');
+        const form = modal.querySelector('#editEventForm');
+        const modalInstance = new bootstrap.Modal(modal);
+        
+        // 폼 데이터 설정
+        form.action = `/data_analysis/performances/{{ performance.id }}/marketing-calendar/events/${event.id}/update/`;
+        form.querySelector('input[name="title"]').value = event.title;
+        form.querySelector('textarea[name="description"]').value = event.extendedProps.description || '';
+        form.querySelector('input[name="start_date"]').value = event.start.toISOString().split('T')[0];
+        form.querySelector('input[name="end_date"]').value = event.end.toISOString().split('T')[0];
+        form.querySelector('select[name="tag"]').value = event.extendedProps.tag;
+        form.querySelector('select[name="color"]').value = event.backgroundColor;
+        
+        // 색상 미리보기 업데이트
+        updateColorPreview(editColorSelect, editColorDot);
+        
+        modalInstance.show();
     }
 });
 
 // 크롤링 대상 수정 함수
 function editCrawlingTarget(targetId) {
-    fetch("{% url 'data_analysis:get_crawling_target' 0 %}".replace('0', targetId))
+    fetch(`/data_analysis/crawling-targets/${targetId}/`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('edit_platform').value = data.platform;
@@ -791,7 +871,7 @@ function editCrawlingTarget(targetId) {
             document.getElementById('edit_is_active').checked = data.is_active;
             
             var form = document.getElementById('editCrawlingTargetForm');
-            form.action = "{% url 'data_analysis:update_crawling_target' 0 %}".replace('0', targetId);
+            form.action = `/data_analysis/crawling-targets/${targetId}/update/`;
             
             var modal = new bootstrap.Modal(document.getElementById('editCrawlingTargetModal'));
             modal.show();

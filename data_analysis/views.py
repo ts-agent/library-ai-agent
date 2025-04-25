@@ -43,34 +43,41 @@ class PerformanceDetailView(LoginRequiredMixin, DetailView):
     model = Performance
     template_name = 'data_analysis/performance/detail.html'
     context_object_name = 'performance'
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        reviews = self.object.reviews.all()
-        total_reviews = reviews.count()
+        performance = self.get_object()
         
-        if total_reviews > 0:
-            # 감정 분석 통계
-            positive_count = reviews.filter(sentiment='positive').count()
-            negative_count = reviews.filter(sentiment='negative').count()
-            neutral_count = reviews.filter(sentiment='neutral').count()
-            
-            context['review_stats'] = {
-                'total': total_reviews,
-                'positive': {
-                    'count': positive_count,
-                    'percentage': round(positive_count / total_reviews * 100)
-                },
-                'negative': {
-                    'count': negative_count,
-                    'percentage': round(negative_count / total_reviews * 100)
-                },
-                'neutral': {
-                    'count': neutral_count,
-                    'percentage': round(neutral_count / total_reviews * 100)
-                },
-                'average_rating': round(sum(review.rating for review in reviews) / total_reviews, 1)
+        # 마케팅 캘린더 데이터 추가
+        calendar, created = MarketingCalendar.objects.get_or_create(
+            performance=performance,
+            defaults={
+                'start_date': performance.start_date,
+                'end_date': performance.end_date
             }
+        )
+        
+        # 이벤트를 날짜별로 그룹화
+        events = MarketingEvent.objects.filter(calendar=calendar)
+        events_by_date = {}
+        for event in events:
+            date_str = event.start_date.isoformat()
+            if date_str not in events_by_date:
+                events_by_date[date_str] = []
+            events_by_date[date_str].append({
+                'id': event.id,
+                'title': event.title,
+                'description': event.description,
+                'start_date': event.start_date.isoformat(),
+                'end_date': event.end_date.isoformat(),
+                'tag': event.tag,
+                'color': event.color
+            })
+        
+        context.update({
+            'calendar': calendar,
+            'events_json': json.dumps(events_by_date)
+        })
         
         return context
 
@@ -283,38 +290,7 @@ def settlement_data_delete(request, pk):
 
 def marketing_calendar(request, pk):
     """마케팅 캘린더 뷰"""
-    performance = get_object_or_404(Performance, pk=pk)
-    calendar, created = MarketingCalendar.objects.get_or_create(
-        performance=performance,
-        defaults={
-            'start_date': performance.start_date,
-            'end_date': performance.end_date
-        }
-    )
-    
-    # 이벤트를 날짜별로 그룹화
-    events = MarketingEvent.objects.filter(calendar=calendar)
-    events_by_date = {}
-    for event in events:
-        date_str = event.start_date.isoformat()
-        if date_str not in events_by_date:
-            events_by_date[date_str] = []
-        events_by_date[date_str].append({
-            'id': event.id,
-            'title': event.title,
-            'description': event.description,
-            'start_date': event.start_date.isoformat(),
-            'end_date': event.end_date.isoformat(),
-            'tag': event.tag,
-            'color': event.color
-        })
-    
-    context = {
-        'performance': performance,
-        'calendar': calendar,
-        'events_json': json.dumps(events_by_date)
-    }
-    return render(request, 'data_analysis/marketing/calendar.html', context)
+    return redirect('data_analysis:performance_detail', pk=pk)
 
 def marketing_calendar_settings(request, pk):
     """마케팅 캘린더 설정 뷰"""
@@ -359,7 +335,7 @@ def marketing_event_create(request, pk):
         
         messages.success(request, '일정이 추가되었습니다.')
     
-    return redirect('data_analysis:marketing_calendar', pk=pk)
+    return redirect('data_analysis:performance_detail', pk=pk)
 
 def marketing_event_update(request, pk, event_pk):
     """마케팅 일정 수정 뷰"""

@@ -6,44 +6,216 @@
 {% block extra_css %}
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 <style>
+    /* Font System */
+    body {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    /* Card Styles */
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        transition: all 0.2s ease-in-out;
+    }
+
+    .card:hover {
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+        color: #111827;
+        font-weight: 600;
+        font-size: 1.125rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Header Styles */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        color: #111827;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-subtitle {
+        color: #6B7280;
+        font-size: 0.875rem;
+    }
+
+    /* Info Styles */
     .info-label {
         font-weight: 500;
-        color: #495057;
+        color: #4B5563;
+        font-size: 0.875rem;
+        margin-bottom: 0.375rem;
     }
+
+    .info-value {
+        color: #1F2937;
+        margin-bottom: 1.5rem;
+        font-size: 0.9375rem;
+    }
+
+    /* Upload Section */
     .upload-section {
-        background-color: #f8f9fa;
-        border-radius: 0.5rem;
+        background-color: #F9FAFB;
+        border-radius: 12px;
         padding: 1.5rem;
+        border: 1px solid #E5E7EB;
     }
+
+    .upload-section h6 {
+        color: #111827;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Button Styles */
+    .btn {
+        font-weight: 500;
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0b5ed7;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-primary {
+        color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-danger {
+        color: #EF4444;
+        border-color: #EF4444;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #EF4444;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    /* Table Styles */
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        color: #4B5563;
+        font-weight: 500;
+        font-size: 0.875rem;
+        border-bottom-width: 1px;
+    }
+
+    .table td {
+        color: #1F2937;
+        font-size: 0.875rem;
+        vertical-align: middle;
+    }
+
+    .table-sm td, 
+    .table-sm th {
+        padding: 0.75rem;
+    }
+
+    /* Form Controls */
+    .form-control {
+        border-radius: 8px;
+        border-color: #E5E7EB;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+    }
+
+    .input-group .btn {
+        padding: 0.625rem 1rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        color: #6B7280;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Calendar Styles */
     .calendar-section {
         min-height: 600px;
     }
-    .crawling-target {
-        border-left: 4px solid #0d6efd;
-        padding-left: 1rem;
-        margin-bottom: 1rem;
+
+    .fc {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
-    .crawling-target.inactive {
-        border-left-color: #6c757d;
-    }
+
     .fc-col-header-cell-cushion,
     .fc-daygrid-day-number {
-        color: #000000;
+        color: #1F2937;
+        text-decoration: none;
     }
+
+    .fc-button {
+        font-family: inherit;
+        font-weight: 500;
+    }
+
+    /* Crawling Target */
+    .crawling-target {
+        border-left: 4px solid #0d6efd;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        background-color: #F9FAFB;
+        border-radius: 0 8px 8px 0;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .crawling-target:hover {
+        background-color: #F3F4F6;
+    }
+
+    .crawling-target.inactive {
+        border-left-color: #9CA3AF;
+    }
+
+    /* Color Picker */
     .color-select {
         position: relative;
     }
+
     .color-select .form-control {
         cursor: pointer;
         padding-left: 40px;
         padding-right: 30px;
     }
-    .color-select .dropdown-toggle::after {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
+
     .color-preview {
         position: absolute;
         left: 12px;
@@ -54,12 +226,14 @@
         align-items: center;
         gap: 0.5rem;
     }
+
     .color-dot {
-        display: inline-block;
         width: 1rem;
         height: 1rem;
         border-radius: 50%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
     }
+
     .color-dropdown {
         position: absolute;
         top: 100%;
@@ -67,27 +241,49 @@
         right: 0;
         z-index: 1000;
         background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        display: none;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
         margin-top: 0.25rem;
+        padding: 0.5rem 0;
+        display: none;
     }
+
     .color-dropdown.show {
         display: block;
     }
+
     .color-option {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         padding: 0.5rem 1rem;
         cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
     }
+
     .color-option:hover {
-        background-color: #f8f9fa;
+        background-color: #F3F4F6;
     }
+
     .color-option.selected {
-        background-color: #e9ecef;
+        background-color: #F3F4F6;
+        font-weight: 500;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.25rem;
+        }
+        
+        .upload-section {
+            padding: 1.25rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+        }
     }
 </style>
 {% endblock %}
@@ -95,16 +291,16 @@
 {% block content %}
 <div class="container-fluid px-4">
     <!-- 헤더 -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
         <div>
-            <h1 class="h3 mb-0 text-gray-800">{{ performance.name }}</h1>
-            <p class="text-muted mb-0">{{ performance.get_genre_display }}</p>
+            <h1 class="h3 page-title">{{ performance.name }}</h1>
+            <p class="page-subtitle">{{ performance.get_genre_display }}</p>
         </div>
-        <div>
-            <a href="{% url 'data_analysis:performance_dashboard' performance.pk %}" class="btn btn-primary me-2">
+        <div class="d-flex gap-2">
+            <a href="{% url 'data_analysis:performance_dashboard' performance.pk %}" class="btn btn-primary">
                 <i class="bi bi-graph-up me-1"></i>대시보드
             </a>
-            <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-outline-primary me-2">
+            <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-outline-primary">
                 <i class="bi bi-pencil me-1"></i>수정
             </a>
             <a href="{% url 'data_analysis:performance_delete' performance.pk %}" class="btn btn-outline-danger">
@@ -118,27 +314,27 @@
         <div class="col-lg-8">
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title mb-4">기본 정보</h5>
+                    <h5 class="card-title">기본 정보</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <p class="mb-1 info-label">공연 기간</p>
-                            <p class="mb-3">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</p>
+                            <p class="info-label">공연 기간</p>
+                            <p class="info-value">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</p>
                             
-                            <p class="mb-1 info-label">공연 장소</p>
-                            <p class="mb-3">{{ performance.venue }}</p>
+                            <p class="info-label">공연 장소</p>
+                            <p class="info-value">{{ performance.venue }}</p>
                             
-                            <p class="mb-1 info-label">관람 연령</p>
-                            <p class="mb-3">{{ performance.age_limit }}</p>
+                            <p class="info-label">관람 연령</p>
+                            <p class="info-value">{{ performance.age_limit }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p class="mb-1 info-label">러닝타임</p>
-                            <p class="mb-3">{{ performance.running_time }}분</p>
+                            <p class="info-label">러닝타임</p>
+                            <p class="info-value">{{ performance.running_time }}분</p>
                             
-                            <p class="mb-1 info-label">총 매출</p>
-                            <p class="mb-3">{{ performance.total_sales|intcomma }}원</p>
+                            <p class="info-label">총 매출</p>
+                            <p class="info-value">{{ performance.total_sales|intcomma }}원</p>
                             
-                            <p class="mb-1 info-label">총 관객수</p>
-                            <p class="mb-0">{{ performance.total_audience|intcomma }}명</p>
+                            <p class="info-label">총 관객수</p>
+                            <p class="info-value">{{ performance.total_audience|intcomma }}명</p>
                         </div>
                     </div>
                 </div>
@@ -147,11 +343,11 @@
             <!-- 데이터 업로드 -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title mb-4">데이터 업로드</h5>
+                    <h5 class="card-title">데이터 업로드</h5>
                     
                     <!-- 판매현황 업로드 -->
                     <div class="upload-section mb-4">
-                        <h6 class="mb-3">판매현황 데이터</h6>
+                        <h6>판매현황 데이터</h6>
                         <form action="{% url 'data_analysis:sales_data_upload' performance.pk %}" 
                               method="post" 
                               enctype="multipart/form-data"
@@ -193,8 +389,9 @@
                             </table>
                         </div>
                         {% else %}
-                        <p class="text-muted mb-0">
-                            <i class="bi bi-info-circle me-1"></i>업로드된 판매현황 데이터가 없습니다.
+                        <p class="empty-state">
+                            <i class="bi bi-info-circle"></i>
+                            업로드된 판매현황 데이터가 없습니다.
                         </p>
                         {% endif %}
                     </div>

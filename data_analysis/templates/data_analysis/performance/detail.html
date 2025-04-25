@@ -316,7 +316,19 @@
                 <div class="card-body">
                     <h5 class="card-title">기본 정보</h5>
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <!-- 포스터 이미지 -->
+                        {% if performance.poster %}
+                        <div class="col-md-4 mb-3">
+                            <div class="poster-container" style="max-width: 300px;">
+                                <img src="{{ performance.poster.url }}" 
+                                     alt="{{ performance.name }} 포스터" 
+                                     class="img-fluid rounded shadow-sm"
+                                     style="width: 100%; height: auto; object-fit: cover;">
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-md-{% if performance.poster %}8{% else %}6{% endif %}">
                             <p class="info-label">공연 기간</p>
                             <p class="info-value">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</p>
                             

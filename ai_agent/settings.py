@@ -186,12 +186,18 @@ LOGIN_REDIRECT_URL = '/data_analysis/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # Google Cloud Storage 설정
-GS_BUCKET_NAME = 'library-ai-agent-storage'  # 실제 버킷 이름으로 변경 필요
-GS_PROJECT_ID = 'library-ai-agent-kr'
-GS_CREDENTIALS = None  # App Engine에서 자동으로 인증 처리
-# Uniform bucket-level access가 활성화되어 있으므로 개별 객체의 ACL 설정은 제거
-GS_FILE_OVERWRITE = False
+if os.getenv('GAE_ENV', '').startswith('standard'):
+    # App Engine 환경
+    GS_BUCKET_NAME = 'library-ai-agent-storage'  # 실제 버킷 이름으로 변경 필요
+    GS_PROJECT_ID = 'library-ai-agent-kr'
+    GS_CREDENTIALS = None  # App Engine에서 자동으로 인증 처리
+    GS_FILE_OVERWRITE = False
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+else:
+    # 로컬 개발 환경
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL = '/media/'
 
 # 미디어 파일 설정
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+MEDIA_ROOT = BASE_DIR / 'media'

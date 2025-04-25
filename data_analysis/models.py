@@ -13,6 +13,7 @@ class Performance(models.Model):
 
     name = models.CharField(max_length=200, verbose_name='공연명')
     genre = models.CharField(max_length=20, choices=GENRE_CHOICES, default='concert', verbose_name='장르')
+    poster = models.ImageField(upload_to='posters/', verbose_name='포스터', null=True, blank=True)
     venue = models.CharField(max_length=200, verbose_name='공연장소')
     start_date = models.DateField(verbose_name='공연 시작일')
     end_date = models.DateField(verbose_name='공연 종료일')

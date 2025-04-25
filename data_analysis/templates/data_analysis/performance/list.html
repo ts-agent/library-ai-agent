@@ -210,16 +210,16 @@
                         <input type="radio" class="btn-check" name="genre" id="all" value="" {% if not request.GET.genre %}checked{% endif %}>
                         <label class="btn btn-outline-secondary" for="all">전체</label>
                         
-                        <input type="radio" class="btn-check" name="genre" id="concert" value="CONCERT" {% if request.GET.genre == 'CONCERT' %}checked{% endif %}>
+                        <input type="radio" class="btn-check" name="genre" id="concert" value="concert" {% if request.GET.genre == 'concert' %}checked{% endif %}>
                         <label class="btn btn-outline-secondary" for="concert">콘서트</label>
                         
-                        <input type="radio" class="btn-check" name="genre" id="musical" value="MUSICAL" {% if request.GET.genre == 'MUSICAL' %}checked{% endif %}>
+                        <input type="radio" class="btn-check" name="genre" id="musical" value="musical" {% if request.GET.genre == 'musical' %}checked{% endif %}>
                         <label class="btn btn-outline-secondary" for="musical">뮤지컬</label>
                         
-                        <input type="radio" class="btn-check" name="genre" id="play" value="PLAY" {% if request.GET.genre == 'PLAY' %}checked{% endif %}>
+                        <input type="radio" class="btn-check" name="genre" id="play" value="play" {% if request.GET.genre == 'play' %}checked{% endif %}>
                         <label class="btn btn-outline-secondary" for="play">연극</label>
                         
-                        <input type="radio" class="btn-check" name="genre" id="exhibition" value="EXHIBITION" {% if request.GET.genre == 'EXHIBITION' %}checked{% endif %}>
+                        <input type="radio" class="btn-check" name="genre" id="exhibition" value="exhibition" {% if request.GET.genre == 'exhibition' %}checked{% endif %}>
                         <label class="btn btn-outline-secondary" for="exhibition">전시</label>
                     </div>
                 </div>

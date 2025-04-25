@@ -21,7 +21,7 @@
         
         .navbar {
             background-color: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
             height: 60px;
             padding: 0;
             position: fixed;
@@ -29,13 +29,80 @@
             right: 0;
             left: 0;
             z-index: 1030;
+            transition: box-shadow 0.2s ease-in-out;
         }
-        
+
+        .navbar:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08), 0 2px 3px rgba(0,0,0,0.04);
+        }
+
+        .navbar .container-fluid {
+            height: 100%;
+        }
+
         .navbar-brand {
+            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
             font-weight: 700;
+            font-size: 1.25rem;
             color: #3B82F6;
             margin-right: 2rem;
             letter-spacing: -0.02em;
+            transition: color 0.2s ease;
+        }
+
+        .navbar-brand:hover {
+            color: #2563EB;
+        }
+
+        #sidebarToggle, #accountSidebarToggle {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #4B5563;
+            background-color: transparent;
+            transition: all 0.2s ease;
+        }
+
+        #sidebarToggle:hover, #accountSidebarToggle:hover {
+            background-color: #F3F4F6;
+            color: #3B82F6;
+        }
+
+        #sidebarToggle:active, #accountSidebarToggle:active {
+            background-color: #E5E7EB;
+            transform: scale(0.95);
+        }
+
+        #sidebarToggle i, #accountSidebarToggle i {
+            font-size: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        #sidebarToggle:hover i, #accountSidebarToggle:hover i {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                height: 56px;
+            }
+
+            .navbar-brand {
+                font-size: 1.125rem;
+            }
+
+            #sidebarToggle, #accountSidebarToggle {
+                width: 36px;
+                height: 36px;
+            }
+
+            #sidebarToggle i, #accountSidebarToggle i {
+                font-size: 1.25rem;
+            }
         }
         
         .sidebar {
@@ -324,6 +391,42 @@
                 right: -100%;
             }
         }
+
+        .footer {
+            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            position: fixed;
+            bottom: 0;
+            left: 250px;
+            right: 0;
+            background-color: #ffffff;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 0.875rem;
+            z-index: 1020;
+            transition: left 0.3s ease;
+        }
+
+        .footer .text-muted {
+            color: #6B7280 !important;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                left: 0;
+                font-size: 0.813rem;
+            }
+
+            .footer .container-fluid {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        /* 메인 컨텐츠 영역 하단 여백 조정 */
+        .main-content {
+            padding-bottom: 4rem;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -331,13 +434,15 @@
 <body>
     <!-- 네비게이션 바 -->
     <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid px-4">
-            <button class="btn btn-link d-lg-none me-2" type="button" id="sidebarToggle">
-                <i class="bi bi-list fs-4"></i>
+        <div class="container-fluid px-4 d-flex align-items-center">
+            <button class="btn btn-link d-lg-none me-2" type="button" id="sidebarToggle" aria-label="메뉴 열기">
+                <i class="bi bi-list"></i>
             </button>
-            <a class="navbar-brand" href="{% url 'data_analysis:index' %}">Library Data Agent</a>
-            <button class="btn btn-link ms-auto" type="button" id="accountSidebarToggle">
-                <i class="bi bi-person-circle fs-4"></i>
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'data_analysis:index' %}">
+                Library Data Agent
+            </a>
+            <button class="btn btn-link ms-auto" type="button" id="accountSidebarToggle" aria-label="계정 메뉴 열기">
+                <i class="bi bi-person-circle"></i>
             </button>
         </div>
     </nav>
@@ -487,6 +592,15 @@
         <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
         {% block content %}{% endblock %}
     </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-end align-items-center py-3">
+                <span class="text-muted">담당자: 플랫폼팀 이진욱</span>
+            </div>
+        </div>
+    </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

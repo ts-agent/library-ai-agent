@@ -1,0 +1,604 @@
+{% extends 'data_analysis/base.html' %}
+{% load humanize %}
+
+{% block title %}{{ performance.name }} - 공연 상세{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<style>
+    .info-label {
+        font-weight: 500;
+        color: #495057;
+    }
+    .upload-section {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+    }
+    .calendar-section {
+        min-height: 600px;
+    }
+    .crawling-target {
+        border-left: 4px solid #0d6efd;
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+    }
+    .crawling-target.inactive {
+        border-left-color: #6c757d;
+    }
+    .fc-col-header-cell-cushion,
+    .fc-daygrid-day-number {
+        color: #000000;
+    }
+    .color-select {
+        position: relative;
+    }
+    .color-select .form-control {
+        cursor: pointer;
+        padding-left: 40px;
+        padding-right: 30px;
+    }
+    .color-select .dropdown-toggle::after {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    .color-preview {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .color-dot {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+    }
+    .color-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        display: none;
+        margin-top: 0.25rem;
+    }
+    .color-dropdown.show {
+        display: block;
+    }
+    .color-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+    .color-option:hover {
+        background-color: #f8f9fa;
+    }
+    .color-option.selected {
+        background-color: #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">{{ performance.name }}</h1>
+            <p class="text-muted mb-0">{{ performance.get_genre_display }}</p>
+        </div>
+        <div>
+            <a href="{% url 'data_analysis:performance_dashboard' performance.pk %}" class="btn btn-primary me-2">
+                <i class="bi bi-graph-up me-1"></i>대시보드
+            </a>
+            <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-pencil me-1"></i>수정
+            </a>
+            <a href="{% url 'data_analysis:performance_delete' performance.pk %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash me-1"></i>삭제
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 기본 정보 -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">기본 정보</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <p class="mb-1 info-label">공연 기간</p>
+                            <p class="mb-3">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</p>
+                            
+                            <p class="mb-1 info-label">공연 장소</p>
+                            <p class="mb-3">{{ performance.venue }}</p>
+                            
+                            <p class="mb-1 info-label">관람 연령</p>
+                            <p class="mb-3">{{ performance.age_limit }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 info-label">러닝타임</p>
+                            <p class="mb-3">{{ performance.running_time }}분</p>
+                            
+                            <p class="mb-1 info-label">총 매출</p>
+                            <p class="mb-3">{{ performance.total_sales|intcomma }}원</p>
+                            
+                            <p class="mb-1 info-label">총 관객수</p>
+                            <p class="mb-0">{{ performance.total_audience|intcomma }}명</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 데이터 업로드 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">데이터 업로드</h5>
+                    
+                    <!-- 판매현황 업로드 -->
+                    <div class="upload-section mb-4">
+                        <h6 class="mb-3">판매현황 데이터</h6>
+                        <form action="{% url 'data_analysis:sales_data_upload' performance.pk %}" 
+                              method="post" 
+                              enctype="multipart/form-data"
+                              class="mb-3">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="file" class="form-control" name="file" accept=".xlsx,.xls">
+                                <button type="submit" class="btn btn-primary">업로드</button>
+                            </div>
+                        </form>
+                        {% if performance.sales_data.exists %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>업로드 일시</th>
+                                        <th>파일명</th>
+                                        <th>작업</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in performance.sales_data.all %}
+                                    <tr>
+                                        <td>{{ data.uploaded_at|date:"Y.m.d H:i" }}</td>
+                                        <td>{{ data.file.name|default:"파일 없음" }}</td>
+                                        <td>
+                                            <form action="{% url 'data_analysis:sales_data_delete' data.pk %}" 
+                                                  method="post" 
+                                                  style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-info-circle me-1"></i>업로드된 판매현황 데이터가 없습니다.
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- 정산서 업로드 -->
+                    <div class="upload-section">
+                        <h6 class="mb-3">정산서 데이터</h6>
+                        <form action="{% url 'data_analysis:settlement_data_upload' performance.pk %}" 
+                              method="post" 
+                              enctype="multipart/form-data"
+                              class="mb-3">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="file" class="form-control" name="settlement_file" accept=".xlsx,.xls">
+                                <button type="submit" class="btn btn-primary">업로드</button>
+                            </div>
+                        </form>
+                        {% if performance.settlement_data.exists %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>업로드 일시</th>
+                                        <th>파일명</th>
+                                        <th>작업</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in performance.settlement_data.all %}
+                                    <tr>
+                                        <td>{{ data.uploaded_at|date:"Y.m.d H:i" }}</td>
+                                        <td>{{ data.file.name|default:"파일 없음" }}</td>
+                                        <td>
+                                            <form action="{% url 'data_analysis:settlement_data_delete' data.pk %}" 
+                                                  method="post" 
+                                                  style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-info-circle me-1"></i>업로드된 정산서 데이터가 없습니다.
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 크롤링 설정 -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">크롤링 설정</h5>
+                        <button type="button" 
+                                class="btn btn-primary btn-sm" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#addCrawlingTargetModal">
+                            <i class="bi bi-plus-lg me-1"></i>추가
+                        </button>
+                    </div>
+
+                    {% if performance.crawling_targets.exists %}
+                    {% for target in performance.crawling_targets.all %}
+                    <div class="crawling-target {% if not target.is_active %}inactive{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="mb-1">{{ target.platform }}</h6>
+                                <a href="{{ target.url }}" target="_blank" class="text-muted small">{{ target.url }}</a>
+                            </div>
+                            <div class="btn-group">
+                                <form action="{% url 'data_analysis:toggle_crawling_target' target.pk %}" 
+                                      method="post" 
+                                      style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="btn btn-sm {% if target.is_active %}btn-success{% else %}btn-secondary{% endif %} me-1">
+                                        <i class="bi {% if target.is_active %}bi-play-fill{% else %}bi-pause-fill{% endif %}"></i>
+                                    </button>
+                                </form>
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-primary me-1"
+                                        onclick="editCrawlingTarget({{ target.pk }})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <form action="{% url 'data_analysis:delete_crawling_target' target.pk %}" 
+                                      method="post" 
+                                      style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% if target.last_crawled_at %}
+                        <p class="text-muted small mb-0">
+                            마지막 크롤링: {{ target.last_crawled_at|date:"Y.m.d H:i" }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>등록된 크롤링 대상이 없습니다.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 마케팅 캘린더 -->
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">마케팅 캘린더</h5>
+                <button type="button" 
+                        class="btn btn-primary btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addEventModal">
+                    <i class="bi bi-plus-lg me-1"></i>일정 추가
+                </button>
+            </div>
+            <div id="marketingCalendar" class="calendar-section"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 크롤링 대상 추가 모달 -->
+<div class="modal fade" id="addCrawlingTargetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">크롤링 대상 추가</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'data_analysis:add_crawling_target' performance.pk %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="platform" class="form-label">플랫폼</label>
+                        <input type="text" class="form-control" id="platform" name="platform" required>
+                        <div class="form-text">예: 인터파크티켓, 티켓링크, 인스타그램</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="url" class="form-label">URL</label>
+                        <input type="url" class="form-control" id="url" name="url" required>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+                        <label class="form-check-label" for="is_active">활성화</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-primary">추가</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 크롤링 대상 수정 모달 -->
+<div class="modal fade" id="editCrawlingTargetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">크롤링 대상 수정</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editCrawlingTargetForm" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_platform" class="form-label">플랫폼</label>
+                        <input type="text" class="form-control" id="edit_platform" name="platform" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_url" class="form-label">URL</label>
+                        <input type="url" class="form-control" id="edit_url" name="url" required>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="edit_is_active" name="is_active">
+                        <label class="form-check-label" for="edit_is_active">활성화</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-primary">수정</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 마케팅 일정 추가 모달 -->
+<div class="modal fade" id="addEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">마케팅 일정 추가</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'data_analysis:marketing_event_create' performance.pk %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">일정 제목</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tag" class="form-label">태그</label>
+                        <select class="form-select" id="tag" name="tag" required>
+                            <option value="promotion">프로모션</option>
+                            <option value="marketing">마케팅</option>
+                            <option value="press">언론보도</option>
+                            <option value="event">이벤트</option>
+                            <option value="sns">SNS</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">색상</label>
+                        <div class="color-select">
+                            <input type="text" class="form-control dropdown-toggle" readonly value="하늘색">
+                            <input type="hidden" name="color" id="color" value="#a8deff" required>
+                            <div class="color-preview">
+                                <span class="color-dot" style="background-color: #a8deff"></span>
+                            </div>
+                            <div class="color-dropdown">
+                                <div class="color-option selected" data-value="#a8deff" data-label="하늘색">
+                                    <span class="color-dot" style="background-color: #a8deff"></span>
+                                    <span>하늘색</span>
+                                </div>
+                                <div class="color-option" data-value="#ff8a8a" data-label="빨간색">
+                                    <span class="color-dot" style="background-color: #ff8a8a"></span>
+                                    <span>빨간색</span>
+                                </div>
+                                <div class="color-option" data-value="#a8ff8f" data-label="초록색">
+                                    <span class="color-dot" style="background-color: #a8ff8f"></span>
+                                    <span>초록색</span>
+                                </div>
+                                <div class="color-option" data-value="#ffdc73" data-label="노란색">
+                                    <span class="color-dot" style="background-color: #ffdc73"></span>
+                                    <span>노란색</span>
+                                </div>
+                                <div class="color-option" data-value="#d9a8ff" data-label="보라색">
+                                    <span class="color-dot" style="background-color: #d9a8ff"></span>
+                                    <span>보라색</span>
+                                </div>
+                                <div class="color-option" data-value="#ffc4a8" data-label="주황색">
+                                    <span class="color-dot" style="background-color: #ffc4a8"></span>
+                                    <span>주황색</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="start_date" class="form-label">시작일</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="end_date" class="form-label">종료일</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">설명</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-primary">추가</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 색상 선택 초기화
+    const colorSelect = document.querySelector('.color-select');
+    const colorInput = colorSelect.querySelector('input[type="text"]');
+    const colorValue = colorSelect.querySelector('input[type="hidden"]');
+    const colorDropdown = colorSelect.querySelector('.color-dropdown');
+    const colorOptions = colorSelect.querySelectorAll('.color-option');
+    const colorPreview = colorSelect.querySelector('.color-preview');
+
+    // 드롭다운 토글
+    colorInput.addEventListener('click', function() {
+        colorDropdown.classList.toggle('show');
+    });
+
+    // 색상 옵션 선택
+    colorOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const value = this.dataset.value;
+            const label = this.dataset.label;
+            
+            // 선택된 옵션 표시
+            colorOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // 미리보기 업데이트
+            colorPreview.innerHTML = `<span class="color-dot" style="background-color: ${value}"></span><span>${label}</span>`;
+            
+            // 값 설정
+            colorInput.value = label;
+            colorValue.value = value;
+            
+            // 드롭다운 닫기
+            colorDropdown.classList.remove('show');
+        });
+    });
+
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', function(event) {
+        if (!colorSelect.contains(event.target)) {
+            colorDropdown.classList.remove('show');
+        }
+    });
+
+    // 마케팅 캘린더 초기화
+    var calendarEl = document.getElementById('marketingCalendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'ko',
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: "{% url 'data_analysis:marketing_calendar' performance.pk %}",
+        editable: true,
+        eventClick: function(info) {
+            if (confirm('이 일정을 삭제하시겠습니까?')) {
+                fetch("{% url 'data_analysis:marketing_event_delete' pk=performance.pk event_pk=0 %}".replace('0', info.event.id), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        info.event.remove();
+                    }
+                });
+            }
+        },
+        eventDrop: function(info) {
+            updateEvent(info.event);
+        },
+        eventResize: function(info) {
+            updateEvent(info.event);
+        }
+    });
+    calendar.render();
+
+    // 이벤트 업데이트 함수
+    function updateEvent(event) {
+        const url = "{% url 'data_analysis:marketing_event_update' pk=performance.pk event_pk=0 %}".replace(/0$/, event.id);
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                start: event.start.toISOString(),
+                end: event.end ? event.end.toISOString() : event.start.toISOString()
+            })
+        });
+    }
+});
+
+// 크롤링 대상 수정 함수
+function editCrawlingTarget(targetId) {
+    fetch("{% url 'data_analysis:get_crawling_target' 0 %}".replace('0', targetId))
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('edit_platform').value = data.platform;
+            document.getElementById('edit_url').value = data.url;
+            document.getElementById('edit_is_active').checked = data.is_active;
+            
+            var form = document.getElementById('editCrawlingTargetForm');
+            form.action = "{% url 'data_analysis:update_crawling_target' 0 %}".replace('0', targetId);
+            
+            var modal = new bootstrap.Modal(document.getElementById('editCrawlingTargetModal'));
+            modal.show();
+        });
+}
+</script>
+{% endblock %} 

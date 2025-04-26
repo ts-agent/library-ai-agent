@@ -16,7 +16,7 @@ from google.cloud.sql.connector import Connector
 from sqlalchemy.sql import text
 from sqlalchemy.engine import URL
 from sqlalchemy.pool import QueuePool
-from sqlalchemy import create_engine, isolation_level
+from sqlalchemy import create_engine
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -193,7 +193,7 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
     # Static 파일 설정
     STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
-    STATIC_ROOT = 'static/'
+    STATIC_ROOT = '/tmp/static'
 else:
     # 로컬 개발 환경
     STATIC_URL = 'static/'

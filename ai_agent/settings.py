@@ -17,6 +17,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.engine import URL
 from sqlalchemy.pool import QueuePool
 from sqlalchemy import create_engine
+from google.oauth2 import service_account
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -176,28 +177,37 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATICFILES_DIRS = [
     BASE_DIR / 'data_analysis' / 'static',
 ]
 
 if os.getenv('GAE_ENV', '').startswith('standard'):
     # App Engine 환경
-    GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME', 'library-ai-agent-storage')
-    GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID', 'library-ai-agent-kr')
-    GS_CREDENTIALS = None
-    GS_FILE_OVERWRITE = True
+    GS_BUCKET_NAME = 'library-ai-agent-storage'
+    GS_PROJECT_ID = 'library-ai-agent-kr'
+    
+    # App Engine의 기본 서비스 계정 사용
+    GS_CREDENTIALS = None  # App Engine 환경에서는 자동으로 인증 처리
     
     # Static 파일 설정
     STATIC_ROOT = 'static'
     STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
     STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    
+    # Media 파일 설정
+    GS_FILE_OVERWRITE = False
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
 else:
     # 로컬 개발 환경
     STATIC_URL = 'static/'
     STATIC_ROOT = BASE_DIR / 'static'
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
+    # Media 파일 설정
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -221,18 +231,3 @@ SECURE_HSTS_PRELOAD = True
 # 로그인/로그아웃 설정
 LOGIN_REDIRECT_URL = '/data_analysis/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
-
-# Google Cloud Storage 설정
-if os.getenv('GAE_ENV', '').startswith('standard'):
-    # App Engine 환경
-    GS_BUCKET_NAME = 'library-ai-agent-storage'  # 실제 버킷 이름으로 변경 필요
-    GS_PROJECT_ID = 'library-ai-agent-kr'
-    GS_CREDENTIALS = None  # App Engine에서 자동으로 인증 처리
-    GS_FILE_OVERWRITE = False
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
-else:
-    # 로컬 개발 환경
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'

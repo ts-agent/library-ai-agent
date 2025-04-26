@@ -191,8 +191,7 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
     GS_CREDENTIALS = None  # App Engine 환경에서는 자동으로 인증 처리
     
     # GCS 설정
-    GS_QUERYSTRING_AUTH = True  # URL 서명 활성화 - 인증된 접근만 허용
-    GS_EXPIRATION = timedelta(hours=1)  # 서명된 URL 1시간 후 만료
+    GS_QUERYSTRING_AUTH = False  # URL 서명 비활성화
     GS_BLOB_CHUNK_SIZE = 5 * 1024 * 1024  # 5MB
     GS_FILE_OVERWRITE = False
     

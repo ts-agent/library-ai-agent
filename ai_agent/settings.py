@@ -13,7 +13,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from google.cloud.sql.connector import Connector
-import sqlalchemy
+from sqlalchemy.sql import text
+from sqlalchemy.engine import URL
+from sqlalchemy.pool import QueuePool
+from sqlalchemy import create_engine, isolation_level
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,9 +124,9 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
             'HOST': DB_HOST,
             'PORT': '5432',
             'OPTIONS': {
-                'isolation_level': sqlalchemy.engine.IsolationLevel.REPEATABLE_READ,
+                'isolation_level': 'REPEATABLE READ',
             } if DEBUG else {
-                'isolation_level': sqlalchemy.engine.IsolationLevel.REPEATABLE_READ,
+                'isolation_level': 'REPEATABLE READ',
                 'creator': getconn,
             },
         }

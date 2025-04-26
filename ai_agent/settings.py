@@ -124,9 +124,9 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
             'HOST': DB_HOST,
             'PORT': '5432',
             'OPTIONS': {
-                'isolation_level': 'REPEATABLE READ',
+                'isolation_level': 2,  # psycopg.IsolationLevel.REPEATABLE_READ
             } if DEBUG else {
-                'isolation_level': 'REPEATABLE READ',
+                'isolation_level': 2,  # psycopg.IsolationLevel.REPEATABLE_READ
                 'creator': getconn,
             },
         }

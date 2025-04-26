@@ -4,7 +4,8 @@ instance_class: F1
 env: standard
 
 entrypoint: >
-  sh -c "python manage.py migrate && 
+  sh -c "python manage.py collectstatic --noinput && 
+  python manage.py migrate && 
   gunicorn -b :$PORT ai_agent.wsgi:application"
 
 # 자동 스케일링 설정
@@ -32,6 +33,7 @@ env_variables:
   GS_PROJECT_ID: "library-ai-agent-kr"
   DJANGO_SECRET_KEY: "django-insecure-dj%$r4@y-xfk=vb7x5lzk1va6%$u#+a@e+wj2hl3%mv*fqz5za"
   DJANGO_DEBUG: "False"
+  STATIC_ROOT: "/workspace/static"
 
 # Cloud SQL 인스턴스 연결 설정
 beta_settings:
@@ -39,11 +41,11 @@ beta_settings:
 
 handlers:
 - url: /static
-  static_dir: static/
+  static_dir: static
   secure: always
 
 - url: /media
-  static_dir: media/
+  static_dir: media
   secure: always
 
 - url: /.*

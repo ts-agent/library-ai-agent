@@ -207,7 +207,7 @@
                                     id="{{ form.genre.id_for_label }}"
                                     name="{{ form.genre.name }}"
                                     required>
-                                <option value="">장르 선택</option>
+                                <option value="" selected>장르 선택</option>
                                 <option value="concert" {% if form.genre.value == 'concert' %}selected{% endif %}>콘서트</option>
                                 <option value="musical" {% if form.genre.value == 'musical' %}selected{% endif %}>뮤지컬</option>
                                 <option value="play" {% if form.genre.value == 'play' %}selected{% endif %}>연극</option>
@@ -317,27 +317,6 @@
                             </div>
                             {% endif %}
                             <div class="help-text">공연에 대한 상세한 설명을 입력해주세요.</div>
-                        </div>
-
-                        <!-- 포스터 이미지 -->
-                        <div class="mb-3">
-                            <label for="{{ form.poster.id_for_label }}" class="form-label">포스터 이미지</label>
-                            <input type="file" 
-                                   class="form-control {% if form.poster.errors %}is-invalid{% endif %}" 
-                                   id="{{ form.poster.id_for_label }}"
-                                   name="{{ form.poster.name }}"
-                                   accept="image/*">
-                            {% if form.poster.errors %}
-                            <div class="invalid-feedback">
-                                {{ form.poster.errors|join:", " }}
-                            </div>
-                            {% endif %}
-                            {% if form.instance.poster %}
-                            <div class="mt-2">
-                                <img src="{{ form.instance.poster.url }}" alt="현재 포스터" class="preview-image">
-                            </div>
-                            {% endif %}
-                            <div class="help-text">권장 크기: 800x1200px, 최대 5MB</div>
                         </div>
                     </div>
 

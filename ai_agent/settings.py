@@ -98,6 +98,18 @@ DB_NAME = os.environ.get('DB_NAME', 'library_ai_db')
 DB_USER = os.environ.get('DB_USER', 'postgres')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'Library@AI2025!')
 
+def getconn():
+    """Cloud SQL Python Connector를 사용하여 데이터베이스 연결을 생성합니다."""
+    with Connector() as connector:
+        conn = connector.connect(
+            "library-ai-agent-kr:asia-northeast3:library-ai-db",
+            "pg8000",
+            user=DB_USER,
+            password=DB_PASSWORD,
+            db=DB_NAME,
+        )
+        return conn
+
 if os.getenv('GAE_ENV', '').startswith('standard'):
     # App Engine 환경
     DATABASES = {
@@ -108,6 +120,12 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
             'PASSWORD': DB_PASSWORD,
             'HOST': DB_HOST,
             'PORT': '5432',
+            'OPTIONS': {
+                'isolation_level': sqlalchemy.engine.IsolationLevel.REPEATABLE_READ,
+            } if DEBUG else {
+                'isolation_level': sqlalchemy.engine.IsolationLevel.REPEATABLE_READ,
+                'creator': getconn,
+            },
         }
     }
 else:
@@ -158,9 +176,26 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = [
+    BASE_DIR / 'data_analysis' / 'static',
+]
+
+if os.getenv('GAE_ENV', '').startswith('standard'):
+    # App Engine 환경
+    GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME', 'library-ai-agent-storage')
+    GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID', 'library-ai-agent-kr')
+    GS_CREDENTIALS = None  # App Engine에서 자동으로 인증 처리
+    GS_FILE_OVERWRITE = True
+    
+    # Static 파일 설정
+    STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
+    STATIC_ROOT = 'static/'
+else:
+    # 로컬 개발 환경
+    STATIC_URL = 'static/'
+    STATIC_ROOT = BASE_DIR / 'static'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

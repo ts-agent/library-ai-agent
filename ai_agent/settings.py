@@ -18,6 +18,7 @@ from sqlalchemy.engine import URL
 from sqlalchemy.pool import QueuePool
 from sqlalchemy import create_engine
 from google.oauth2 import service_account
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -189,13 +190,18 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
     # App Engine의 기본 서비스 계정 사용
     GS_CREDENTIALS = None  # App Engine 환경에서는 자동으로 인증 처리
     
+    # GCS 설정
+    GS_QUERYSTRING_AUTH = False  # URL 서명 비활성화
+    GS_DEFAULT_ACL = 'publicRead'  # 기본적으로 공개 읽기 권한 설정
+    GS_BLOB_CHUNK_SIZE = 5 * 1024 * 1024  # 5MB
+    GS_FILE_OVERWRITE = False
+    
     # Static 파일 설정
     STATIC_ROOT = 'static'
     STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
     STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     
     # Media 파일 설정
-    GS_FILE_OVERWRITE = False
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
 else:

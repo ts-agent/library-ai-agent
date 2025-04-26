@@ -192,6 +192,7 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
     
     # GCS 설정
     GS_QUERYSTRING_AUTH = False  # URL 서명 비활성화
+    GS_DEFAULT_ACL = None  # 기본 ACL 설정 사용
     GS_BLOB_CHUNK_SIZE = 5 * 1024 * 1024  # 5MB
     GS_FILE_OVERWRITE = False
     

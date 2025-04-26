@@ -40,20 +40,6 @@ class PerformanceListView(LoginRequiredMixin, ListView):
     context_object_name = 'performances'
     ordering = ['-start_date']
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        performances = self.get_queryset()
-        
-        # 통계 데이터 계산
-        stats = {
-            'total_sales': performances.aggregate(Sum('total_sales'))['total_sales__sum'] or 0,
-            'total_audience': performances.aggregate(Sum('total_audience'))['total_audience__sum'] or 0,
-            'avg_occupancy': performances.aggregate(Avg('occupancy_rate'))['occupancy_rate__avg'] or 0
-        }
-        
-        context['stats'] = json.dumps(stats, cls=DecimalEncoder)
-        return context
-
 class PerformanceDetailView(LoginRequiredMixin, DetailView):
     model = Performance
     template_name = 'data_analysis/performance/detail.html'
@@ -1067,5 +1053,5 @@ def get_dashboard_data(performance, period):
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
-            return float(obj)
+            return str(obj)
         return super().default(obj)

@@ -204,8 +204,8 @@
     <!-- 필터 영역 -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-6">
+            <div class="row align-items-center">
+                <div class="col-md-8">
                     <div class="btn-group" role="group">
                         <input type="radio" class="btn-check" name="genre" id="all" value="" {% if not request.GET.genre %}checked{% endif %}>
                         <label class="btn btn-outline-secondary" for="all">전체</label>
@@ -223,15 +223,16 @@
                         <label class="btn btn-outline-secondary" for="exhibition">전시</label>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="search" placeholder="공연명 검색" value="{{ request.GET.search }}">
-                        <button class="btn btn-outline-secondary" type="submit">
+                <div class="col-md-4">
+                    <form class="d-flex" method="get">
+                        <input type="hidden" name="genre" value="{{ request.GET.genre }}">
+                        <input class="form-control" type="search" name="search" placeholder="공연명 검색" value="{{ request.GET.search }}">
+                        <button class="btn btn-outline-primary ms-2" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
-                    </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
@@ -253,7 +254,7 @@
                     </thead>
                     <tbody>
                         {% for performance in performances %}
-                        <tr class="performance-row" onclick="window.location.href='{% url 'data_analysis:performance_detail' performance.pk %}'">
+                        <tr class="performance-row" data-url="{% url 'data_analysis:performance_detail' performance.pk %}">
                             <td>
                                 {% if performance.poster %}
                                 <img src="{{ performance.poster.url }}" alt="{{ performance.name }}" class="performance-image">
@@ -349,13 +350,23 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 장르 필터 변경 시 자동 submit
-    const genreFilters = document.querySelectorAll('input[name="genre"]');
-    genreFilters.forEach(filter => {
-        filter.addEventListener('change', function() {
-            this.closest('form').submit();
-        });
+// 공연 행 클릭 이벤트 처리
+document.querySelectorAll('.performance-row').forEach(row => {
+    row.addEventListener('click', function() {
+        window.location.href = this.dataset.url;
+    });
+});
+
+// 장르 필터 처리
+document.querySelectorAll('.btn-check').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const searchParams = new URLSearchParams(window.location.search);
+        if (this.value) {
+            searchParams.set('genre', this.value);
+        } else {
+            searchParams.delete('genre');
+        }
+        window.location.href = `${window.location.pathname}?${searchParams.toString()}`;
     });
 });
 </script>

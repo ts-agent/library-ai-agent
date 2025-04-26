@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dj%$r4@y-xfk=vb7x5lzk1va6%$u#+a@e+wj2hl3%mv*fqz5za')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+DEBUG = True  # 임시로 디버그 모드 활성화
 
 ALLOWED_HOSTS = [
     'library-ai-agent-kr.du.r.appspot.com',
@@ -124,27 +124,11 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
             'USER': DB_USER,
             'PASSWORD': DB_PASSWORD,
             'HOST': DB_HOST,
-            'PORT': '5432',
+            'PORT': None,
             'OPTIONS': {
                 'isolation_level': 2,
             },
         }
-    }
-
-    # Cloud SQL에 직접 연결
-    DATABASES['default']['HOST'] = None
-    DATABASES['default']['PORT'] = None
-    DATABASES['default'].update({
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASSWORD,
-        'HOST': None,
-        'PORT': None,
-    })
-    DATABASES['default']['OPTIONS'] = {
-        'isolation_level': 2,
-        'host': DB_HOST,
     }
 else:
     # 로컬 개발 환경
@@ -202,13 +186,13 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
     # App Engine 환경
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME', 'library-ai-agent-storage')
     GS_PROJECT_ID = os.environ.get('GS_PROJECT_ID', 'library-ai-agent-kr')
-    GS_CREDENTIALS = None  # App Engine에서 자동으로 인증 처리
+    GS_CREDENTIALS = None
     GS_FILE_OVERWRITE = True
     
     # Static 파일 설정
-    STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    STATIC_ROOT = 'static'
     STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
-    STATIC_ROOT = '/tmp/static'
+    STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 else:
     # 로컬 개발 환경
     STATIC_URL = 'static/'

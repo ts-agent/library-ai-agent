@@ -101,9 +101,13 @@ DB_NAME = os.environ.get('DB_NAME', 'library_ai_db')
 DB_USER = os.environ.get('DB_USER', 'postgres')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'Library@AI2025!')
 
-def getconn():
-    """Cloud SQL Python Connector를 사용하여 데이터베이스 연결을 생성합니다."""
-    with Connector() as connector:
+if os.getenv('GAE_ENV', '').startswith('standard'):
+    # App Engine 환경
+    # Cloud SQL Python Connector 객체 생성
+    connector = Connector()
+
+    def getconn():
+        """Cloud SQL Python Connector를 사용하여 데이터베이스 연결을 생성합니다."""
         conn = connector.connect(
             "library-ai-agent-kr:asia-northeast3:library-ai-db",
             "pg8000",
@@ -113,8 +117,6 @@ def getconn():
         )
         return conn
 
-if os.getenv('GAE_ENV', '').startswith('standard'):
-    # App Engine 환경
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -124,12 +126,25 @@ if os.getenv('GAE_ENV', '').startswith('standard'):
             'HOST': DB_HOST,
             'PORT': '5432',
             'OPTIONS': {
-                'isolation_level': 2,  # psycopg.IsolationLevel.REPEATABLE_READ
-            } if DEBUG else {
-                'isolation_level': 2,  # psycopg.IsolationLevel.REPEATABLE_READ
-                'creator': getconn,
+                'isolation_level': 2,
             },
         }
+    }
+
+    # Cloud SQL에 직접 연결
+    DATABASES['default']['HOST'] = None
+    DATABASES['default']['PORT'] = None
+    DATABASES['default'].update({
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': None,
+        'PORT': None,
+    })
+    DATABASES['default']['OPTIONS'] = {
+        'isolation_level': 2,
+        'host': DB_HOST,
     }
 else:
     # 로컬 개발 환경

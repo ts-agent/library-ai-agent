@@ -292,6 +292,7 @@
             box-sizing: border-box;
             width: auto;
             overflow-x: hidden;
+            padding-bottom: calc(4rem + 60px); /* 데스크톱에서 더 큰 여백 */
         }
 
         .sidebar-footer {
@@ -340,8 +341,8 @@
             width: 300px;
             background: #FFFFFF;
             box-shadow: -4px 0 16px rgba(0, 0, 0, 0.04);
-            transition: all 0.2s ease;
-            z-index: 1000;
+            transition: right 0.3s ease;
+            z-index: 1040;
             overflow-y: auto;
         }
 
@@ -449,21 +450,24 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 999;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 1035;
+            transition: opacity 0.3s ease;
+            opacity: 0;
         }
 
         .sidebar-overlay.show {
             display: block;
+            opacity: 1;
         }
 
         @media (max-width: 768px) {
             .account-sidebar {
                 top: 56px;
-                width: 100%;
-                right: -100%;
+                width: 280px;
+                right: -280px;
             }
 
             .account-sidebar-content {
@@ -487,6 +491,13 @@
                 padding: 0.875rem;
                 font-size: 0.875rem;
             }
+
+            body.sidebar-open {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+                height: 100%;
+            }
         }
 
         .footer {
@@ -499,7 +510,10 @@
             border-top: 1px solid rgba(0, 0, 0, 0.05);
             font-size: 0.875rem;
             z-index: 1020;
-            transition: left 0.3s ease;
+            padding: 1rem 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
         }
 
         .footer .text-muted {
@@ -511,7 +525,8 @@
         @media (max-width: 768px) {
             .footer {
                 left: 0;
-                font-size: 0.813rem;
+                min-height: 48px;
+                padding: 0.75rem 0;
             }
 
             .footer .container-fluid {
@@ -535,6 +550,7 @@
             .main-content {
                 margin-left: 0;
                 padding: 1rem;
+                padding-bottom: calc(1.5rem + 48px);
                 width: 100%;
                 min-height: calc(100vh - 56px);
             }
@@ -590,16 +606,14 @@
             }
 
             .main-content {
-                margin-left: 250px;
-                padding: 1.5rem;
+                padding-bottom: calc(3rem + 60px);
             }
         }
 
         /* 데스크톱 대응 */
         @media (min-width: 1025px) {
             .main-content {
-                margin-left: 250px;
-                padding: 2rem;
+                padding-bottom: calc(4rem + 60px);
             }
         }
     </style>
@@ -621,6 +635,9 @@
             </button>
         </div>
     </nav>
+
+    <!-- 사이드바 오버레이 -->
+    <div class="sidebar-overlay"></div>
 
     <!-- 사이드바 -->
     <aside class="sidebar">
@@ -832,34 +849,71 @@
                 }
             });
 
-            // 계정 사이드바 토글
+            // 계정 사이드바 관련
             const accountSidebarToggle = document.getElementById('accountSidebarToggle');
             const accountSidebar = document.querySelector('.account-sidebar');
-            const overlay = document.createElement('div');
-            overlay.className = 'sidebar-overlay';
-            document.body.appendChild(overlay);
+            const overlay = document.querySelector('.sidebar-overlay');
 
-            accountSidebarToggle.addEventListener('click', function() {
-                accountSidebar.classList.toggle('show');
-                overlay.classList.toggle('show');
-                body.classList.toggle('sidebar-open');
+            // 요소 존재 여부 확인
+            if (!accountSidebarToggle || !accountSidebar || !overlay) {
+                console.warn('계정 사이드바 관련 요소를 찾을 수 없습니다.');
+                return;
+            }
+
+            function toggleAccountSidebar() {
+                if (accountSidebar && overlay) {
+                    accountSidebar.classList.toggle('show');
+                    overlay.classList.toggle('show');
+                    document.body.classList.toggle('sidebar-open');
+                }
+            }
+
+            function closeAccountSidebar() {
+                if (accountSidebar && overlay) {
+                    accountSidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
+
+            accountSidebarToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleAccountSidebar();
             });
 
             // 오버레이 클릭 시 사이드바 닫기
-            overlay.addEventListener('click', function() {
-                accountSidebar.classList.remove('show');
-                overlay.classList.remove('show');
-                body.classList.remove('sidebar-open');
-            });
+            overlay.addEventListener('click', closeAccountSidebar);
 
             // ESC 키 누를 때 사이드바 닫기
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
-                    accountSidebar.classList.remove('show');
-                    overlay.classList.remove('show');
-                    body.classList.remove('sidebar-open');
+                    closeAccountSidebar();
                 }
             });
+
+            // 화면 크기 변경 시 사이드바 닫기
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeAccountSidebar();
+                }
+            });
+
+            // 터치 이벤트 처리
+            if (accountSidebar) {
+                let touchStartX = 0;
+                let touchEndX = 0;
+
+                accountSidebar.addEventListener('touchstart', function(e) {
+                    touchStartX = e.touches[0].clientX;
+                }, false);
+
+                accountSidebar.addEventListener('touchmove', function(e) {
+                    touchEndX = e.touches[0].clientX;
+                    if (touchStartX - touchEndX > 50) {  // 왼쪽으로 스와이프
+                        closeAccountSidebar();
+                    }
+                }, false);
+            }
         });
     </script>
     {% block extra_js %}{% endblock %}

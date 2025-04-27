@@ -366,6 +366,58 @@
             padding: 0.5rem 1rem;
         }
     }
+
+    /* 테이블 스타일 */
+    .table-casting {
+        width: 100%;
+        background: white;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table-casting th,
+    .table-casting td {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        border-bottom: 1px solid #F2F4F6;
+    }
+
+    .table-casting th {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #8B95A1;
+        background-color: #F9FAFB;
+    }
+
+    .table-casting td {
+        font-size: 0.938rem;
+        color: #191F28;
+    }
+
+    .table-casting td.revenue {
+        font-weight: 600;
+        font-family: 'Pretendard';
+        text-align: right;
+    }
+
+    .table-casting tbody tr:hover {
+        background-color: #F8FAFC;
+    }
+
+    .table-casting tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    @media (max-width: 768px) {
+        .table-casting th,
+        .table-casting td {
+            padding: 0.875rem 1rem;
+        }
+        
+        .table-casting td {
+            font-size: 0.875rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -463,9 +515,28 @@
     <div class="row">
         {% if performance.genre != 'exhibition' %}
         <div class="col-md-6">
-            <div class="chart-container">
-                <h5>캐스팅별 매출</h5>
-                <canvas id="castingChart"></canvas>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">캐스팅별 매출</h5>
+                    <div class="table-responsive">
+                        <table class="table-casting">
+                            <thead>
+                                <tr>
+                                    <th>캐스팅 배우</th>
+                                    <th>매출</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cast in casting_revenue %}
+                                <tr>
+                                    <td>{{ cast.name }}</td>
+                                    <td class="revenue">{{ cast.revenue|intcomma }}원</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
         {% endif %}

@@ -292,7 +292,7 @@
             box-sizing: border-box;
             width: auto;
             overflow-x: hidden;
-            padding-bottom: calc(4rem + 60px); /* 데스크톱에서 더 큰 여백 */
+            padding-bottom: calc(2rem + 60px); /* 데스크톱 푸터 여백 */
         }
 
         .sidebar-footer {
@@ -510,8 +510,7 @@
             border-top: 1px solid rgba(0, 0, 0, 0.05);
             font-size: 0.875rem;
             z-index: 1020;
-            padding: 1rem 0;
-            min-height: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
         }
@@ -523,10 +522,19 @@
         }
 
         @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+                padding-bottom: calc(1rem + 48px); /* 모바일 푸터 여백 */
+                width: 100%;
+            }
+
             .footer {
                 left: 0;
-                min-height: 48px;
-                padding: 0.75rem 0;
+                height: 48px; /* 모바일 푸터 높이 */
+                padding: 0;
+                display: flex;
+                align-items: center;
             }
 
             .footer .container-fluid {

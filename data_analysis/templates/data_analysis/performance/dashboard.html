@@ -23,6 +23,7 @@
         padding: 2rem;
         height: 100%;
         transition: all 0.2s ease-in-out;
+        margin-bottom: 1rem;
     }
 
     .stats-card:hover {
@@ -348,10 +349,24 @@
         .stats-card {
             padding: 1.5rem;
             margin-bottom: 1rem;
+            height: auto;
         }
 
         .stats-value {
             font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-title {
+            margin-bottom: 0.75rem;
+        }
+
+        .row > [class*="col-"] {
+            margin-bottom: 1rem;
+        }
+
+        .row > [class*="col-"]:last-child {
+            margin-bottom: 0;
         }
 
         .chart-container {
@@ -364,6 +379,18 @@
 
         .period-selector .btn {
             padding: 0.5rem 1rem;
+        }
+    }
+
+    /* 태블릿 대응 */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .stats-card {
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-value {
+            font-size: 1.75rem;
         }
     }
 

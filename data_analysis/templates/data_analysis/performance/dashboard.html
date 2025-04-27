@@ -512,37 +512,44 @@
         </div>
     </div>
 
+    <!-- 캐스팅별 매출 섹션 -->
     <div class="row">
         {% if performance.genre != 'exhibition' %}
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">캐스팅별 매출</h5>
-                    <div class="table-responsive">
-                        <table class="table-casting">
-                            <thead>
-                                <tr>
-                                    <th>캐스팅 배우</th>
-                                    <th>매출</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for cast in casting_revenue %}
-                                <tr>
-                                    <td>{{ cast.name }}</td>
-                                    <td class="revenue">{{ cast.revenue|intcomma }}원</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <h5 class="chart-title">캐스팅별 매출</h5>
                     </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table-casting">
+                        <thead>
+                            <tr>
+                                <th>캐스팅 배우</th>
+                                <th>매출</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cast in casting_revenue %}
+                            <tr>
+                                <td>{{ cast.name }}</td>
+                                <td class="revenue">{{ cast.revenue|intcomma }}원</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
         {% endif %}
         <div class="col-md-6">
             <div class="chart-container">
-                <h5>점유율 추이</h5>
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <h5 class="chart-title">점유율 추이</h5>
+                    </div>
+                </div>
                 <canvas id="occupancyChart"></canvas>
             </div>
         </div>

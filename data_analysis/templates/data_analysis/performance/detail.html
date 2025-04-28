@@ -296,6 +296,54 @@
             padding: 1rem;
         }
     }
+
+    /* Toggle Switch Styles */
+    .form-check.form-switch {
+        padding-left: 0;
+        margin-right: 0.5rem;
+    }
+
+    .form-switch .form-check-input {
+        width: 2.5rem;
+        height: 1.25rem;
+        margin-left: 0;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255, 255, 255, 1%29'/%3e%3c/svg%3e");
+        background-position: left center;
+        border-radius: 2rem;
+        transition: background-position .15s ease-in-out, background-color .15s ease-in-out;
+        cursor: pointer;
+    }
+
+    .form-switch .form-check-input:checked {
+        background-color: #12B886;
+        border-color: #12B886;
+        background-position: right center;
+    }
+
+    .form-switch .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(18, 184, 134, 0.25);
+    }
+
+    .form-switch .form-check-input:not(:checked) {
+        background-color: #E9ECEF;
+        border-color: #E9ECEF;
+    }
+
+    /* Action Buttons */
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin-left: 0.5rem;
+    }
+
+    .btn-action i {
+        font-size: 1rem;
+    }
 </style>
 {% endblock %}
 
@@ -322,7 +370,7 @@
 
     <div class="row">
         <!-- 기본 정보 -->
-        <div class="col-lg-8">
+        <div class="col-12">
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">기본 정보</h5>
@@ -489,10 +537,8 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 크롤링 설정 -->
-        <div class="col-lg-4">
+            <!-- 크롤링 설정 -->
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -507,32 +553,34 @@
 
                     {% if performance.crawling_targets.exists %}
                     {% for target in performance.crawling_targets.all %}
-                    <div class="crawling-target {% if not target.is_active %}inactive{% endif %}">
+                    <div class="crawling-target {% if not target.is_active %}inactive{% endif %}" id="target-{{ target.pk }}">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
                                 <h6 class="mb-1">{{ target.platform }}</h6>
                                 <a href="{{ target.url }}" target="_blank" class="text-muted small">{{ target.url }}</a>
                             </div>
-                            <div class="btn-group">
-                                <form action="{% url 'data_analysis:toggle_crawling_target' target.pk %}" 
-                                      method="post" 
-                                      style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" 
-                                            class="btn btn-sm {% if target.is_active %}btn-success{% else %}btn-secondary{% endif %} me-1">
-                                        <i class="bi {% if target.is_active %}bi-play-fill{% else %}bi-pause-fill{% endif %}"></i>
-                                    </button>
-                                </form>
+                            <div class="btn-group align-items-center">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           class="form-check-input toggle-crawling" 
+                                           data-target-id="{{ target.pk }}"
+                                           {% if target.is_active %}checked{% endif %}
+                                           title="크롤링 {% if target.is_active %}비활성화{% else %}활성화{% endif %}">
+                                </div>
                                 <button type="button" 
-                                        class="btn btn-sm btn-outline-primary me-1"
-                                        onclick="editCrawlingTarget({{ target.pk }})">
+                                        class="btn btn-sm btn-outline-primary btn-action"
+                                        onclick="editCrawlingTarget('{{ target.pk }}')"
+                                        title="수정">
                                     <i class="bi bi-pencil"></i>
                                 </button>
                                 <form action="{% url 'data_analysis:delete_crawling_target' target.pk %}" 
                                       method="post" 
+                                      onsubmit="return confirm('정말 이 크롤링 대상을 삭제하시겠습니까?')"
                                       style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <button type="submit" 
+                                            class="btn btn-sm btn-outline-danger btn-action"
+                                            title="삭제">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
@@ -552,20 +600,18 @@
                     {% endif %}
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- 마케팅 캘린더 -->
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title d-flex justify-content-between align-items-center">
-                    마케팅 캘린더
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
-                        <i class="fas fa-plus me-1"></i> 일정 추가
-                    </button>
-                </h5>
-                <div id="calendar" class="calendar-section"></div>
+            <!-- 마케팅 캘린더 -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-between align-items-center">
+                        마케팅 캘린더
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                            <i class="fas fa-plus me-1"></i> 일정 추가
+                        </button>
+                    </h5>
+                    <div id="calendar" class="calendar-section"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -579,18 +625,18 @@
                 <h5 class="modal-title">크롤링 대상 추가</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{% url 'data_analysis:add_crawling_target' performance.pk %}" method="post">
+            <form id="addCrawlingTargetForm" onsubmit="return false;">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="platform" class="form-label">플랫폼</label>
                         <select class="form-select" id="platform" name="platform" required>
                             <option value="">플랫폼 선택</option>
-                            <option value="NOL티켓">NOL티켓</option>
-                            <option value="인스타그램">인스타그램</option>
-                            <option value="페이스북">페이스북</option>
-                            <option value="X">X</option>
-                            <option value="유튜브">유튜브</option>
+                            <option value="nol_ticket">NOL티켓</option>
+                            <option value="instagram">인스타그램</option>
+                            <option value="facebook">페이스북</option>
+                            <option value="twitter">X</option>
+                            <option value="youtube">유튜브</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -604,7 +650,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="submit" class="btn btn-primary">추가</button>
+                    <button type="button" class="btn btn-primary" onclick="addCrawlingTarget()">추가</button>
                 </div>
             </form>
         </div>
@@ -619,18 +665,18 @@
                 <h5 class="modal-title">크롤링 대상 수정</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="editCrawlingTargetForm" method="post">
+            <form id="editCrawlingTargetForm" method="post" onsubmit="return handleEditFormSubmit(event);">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="edit_platform" class="form-label">플랫폼</label>
                         <select class="form-select" id="edit_platform" name="platform" required>
                             <option value="">플랫폼 선택</option>
-                            <option value="NOL티켓">NOL티켓</option>
-                            <option value="인스타그램">인스타그램</option>
-                            <option value="페이스북">페이스북</option>
-                            <option value="X">X</option>
-                            <option value="유튜브">유튜브</option>
+                            <option value="nol_ticket">NOL티켓</option>
+                            <option value="instagram">인스타그램</option>
+                            <option value="facebook">페이스북</option>
+                            <option value="twitter">X</option>
+                            <option value="youtube">유튜브</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -901,11 +947,50 @@ document.addEventListener('DOMContentLoaded', function() {
         
         modalInstance.show();
     }
+
+    // 크롤링 대상 토글 이벤트 처리
+    document.querySelectorAll('.toggle-crawling').forEach(function(toggle) {
+        toggle.addEventListener('change', function() {
+            const targetId = this.dataset.targetId;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/data_analysis/crawling/${targetId}/toggle/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    // 토글 상태를 원래대로 되돌림
+                    this.checked = !this.checked;
+                } else {
+                    // 토글 상태에 따라 UI 업데이트
+                    const targetElement = document.getElementById(`target-${targetId}`);
+                    if (data.is_active) {
+                        targetElement.classList.remove('inactive');
+                    } else {
+                        targetElement.classList.add('inactive');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('크롤링 대상 상태 변경 중 오류가 발생했습니다.');
+                // 토글 상태를 원래대로 되돌림
+                this.checked = !this.checked;
+            });
+        });
+    });
 });
 
 // 크롤링 대상 수정 함수
 function editCrawlingTarget(targetId) {
-    fetch(`/data_analysis/crawling-targets/${targetId}/`)
+    fetch(`/data_analysis/crawling/${targetId}/`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('edit_platform').value = data.platform;
@@ -913,11 +998,98 @@ function editCrawlingTarget(targetId) {
             document.getElementById('edit_is_active').checked = data.is_active;
             
             var form = document.getElementById('editCrawlingTargetForm');
-            form.action = `/data_analysis/crawling-targets/${targetId}/update/`;
+            form.action = `/data_analysis/crawling/${targetId}/update/`;
             
             var modal = new bootstrap.Modal(document.getElementById('editCrawlingTargetModal'));
             modal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('크롤링 대상 정보를 불러오는 중 오류가 발생했습니다.');
         });
+}
+
+// 크롤링 대상 추가 함수
+function addCrawlingTarget() {
+    const form = document.getElementById('addCrawlingTargetForm');
+    const platform = form.querySelector('#platform').value;
+    const url = form.querySelector('#url').value;
+    const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    if (!platform || !url) {
+        alert('플랫폼과 URL을 모두 입력해주세요.');
+        return;
+    }
+    
+    fetch('{% url "data_analysis:add_crawling_target" performance.pk %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            platform: platform,
+            url: url,
+            is_active: form.querySelector('#is_active').checked
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => Promise.reject(data));
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addCrawlingTargetModal'));
+            modal.hide();
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.error || '크롤링 대상 추가 중 오류가 발생했습니다.');
+    });
+}
+
+// 크롤링 대상 수정 폼 제출 처리
+function handleEditFormSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = {
+        platform: form.querySelector('#edit_platform').value,
+        url: form.querySelector('#edit_url').value,
+        is_active: form.querySelector('#edit_is_active').checked
+    };
+    
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => Promise.reject(data));
+        }
+        return response.json();
+    })
+    .then(data => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editCrawlingTargetModal'));
+        modal.hide();
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.error || '크롤링 대상 수정 중 오류가 발생했습니다.');
+    });
+    
+    return false;
 }
 </script>
 {% endblock %} 

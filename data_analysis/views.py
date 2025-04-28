@@ -373,191 +373,8 @@ def marketing_event_delete(request, pk, event_pk):
     
     return redirect('data_analysis:marketing_calendar', pk=pk)
 
-def crawl_platform(platform, url):
-    """
-    주어진 플랫폼과 URL에 따라 적절한 크롤링 함수를 호출합니다.
-    """
-    platform_crawlers = {
-        'nol_ticket': crawl_nol_ticket,
-        'youtube': crawl_youtube,
-        'facebook': crawl_facebook,
-        'instagram': crawl_instagram,
-        'twitter': crawl_twitter
-    }
-    
-    if platform not in platform_crawlers:
-        raise ValueError(f"지원하지 않는 플랫폼입니다: {platform}")
-    
-    return platform_crawlers[platform](url)
-
-def crawl_nol_ticket(url):
-    """
-    노티켓 사이트에서 공연 정보를 크롤링합니다.
-    """
-    try:
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        
-        # Chrome 웹드라이버 설정
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        
-        driver = webdriver.Chrome(options=options)
-        driver.get(url)
-        
-        # 페이지 로딩 대기
-        wait = WebDriverWait(driver, 10)
-        
-        # 공연 정보 추출
-        performance_data = {
-            'title': wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.title'))).text,
-            'period': wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.period'))).text,
-            'location': wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.location'))).text,
-            'price': wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.price'))).text
-        }
-        
-        driver.quit()
-        return performance_data
-        
-    except Exception as e:
-        return {'error': str(e)}
-
-def crawl_youtube(url):
-    """
-    유튜브에서 공연 관련 동영상 정보를 크롤링합니다.
-    """
-    try:
-        from googleapiclient.discovery import build
-        from urllib.parse import urlparse, parse_qs
-        
-        # YouTube API 키 설정
-        api_key = settings.YOUTUBE_API_KEY
-        youtube = build('youtube', 'v3', developerKey=api_key)
-        
-        # URL에서 video ID 추출
-        parsed_url = urlparse(url)
-        video_id = parse_qs(parsed_url.query)['v'][0]
-        
-        # 비디오 정보 요청
-        request = youtube.videos().list(
-            part="snippet,statistics",
-            id=video_id
-        )
-        response = request.execute()
-        
-        if not response['items']:
-            return {'error': '비디오를 찾을 수 없습니다.'}
-            
-        video_data = response['items'][0]
-        return {
-            'title': video_data['snippet']['title'],
-            'views': video_data['statistics']['viewCount'],
-            'likes': video_data['statistics']['likeCount'],
-            'comments': video_data['statistics']['commentCount']
-        }
-        
-    except Exception as e:
-        return {'error': str(e)}
-
-def crawl_facebook(url):
-    """
-    페이스북에서 공연 관련 게시물 정보를 크롤링합니다.
-    """
-    try:
-        import facebook
-        
-        # Facebook API 설정
-        graph = facebook.GraphAPI(access_token=settings.FACEBOOK_ACCESS_TOKEN)
-        
-        # URL에서 post ID 추출
-        post_id = url.split('/')[-1]
-        
-        # 게시물 정보 요청
-        post_data = graph.get_object(
-            post_id,
-            fields='message,created_time,likes.summary(true),comments.summary(true),shares'
-        )
-        
-        return {
-            'message': post_data.get('message', ''),
-            'created_time': post_data.get('created_time', ''),
-            'likes': post_data.get('likes', {}).get('summary', {}).get('total_count', 0),
-            'comments': post_data.get('comments', {}).get('summary', {}).get('total_count', 0),
-            'shares': post_data.get('shares', {}).get('count', 0)
-        }
-        
-    except Exception as e:
-        return {'error': str(e)}
-
-def crawl_instagram(url):
-    """
-    인스타그램에서 공연 관련 게시물 정보를 크롤링합니다.
-    """
-    try:
-        from instaloader import Instaloader, Post
-        from urllib.parse import urlparse
-        
-        # Instaloader 인스턴스 생성
-        L = Instaloader()
-        
-        # URL에서 shortcode 추출
-        path_components = urlparse(url).path.split('/')
-        shortcode = path_components[-2] if path_components[-1] == '' else path_components[-1]
-        
-        # 게시물 정보 로드
-        post = Post.from_shortcode(L.context, shortcode)
-        
-        return {
-            'caption': post.caption if post.caption else '',
-            'likes': post.likes,
-            'comments': post.comments,
-            'posted_at': post.date_local.isoformat()
-        }
-        
-    except Exception as e:
-        return {'error': str(e)}
-
-def crawl_twitter(url):
-    """
-    트위터에서 공연 관련 트윗 정보를 크롤링합니다.
-    """
-    try:
-        import tweepy
-        from urllib.parse import urlparse
-        
-        # Twitter API 설정
-        auth = tweepy.OAuthHandler(
-            settings.TWITTER_API_KEY,
-            settings.TWITTER_API_SECRET
-        )
-        auth.set_access_token(
-            settings.TWITTER_ACCESS_TOKEN,
-            settings.TWITTER_ACCESS_TOKEN_SECRET
-        )
-        api = tweepy.API(auth)
-        
-        # URL에서 트윗 ID 추출
-        tweet_id = urlparse(url).path.split('/')[-1]
-        
-        # 트윗 정보 요청
-        tweet = api.get_status(tweet_id, tweet_mode='extended')
-        
-        return {
-            'text': tweet.full_text,
-            'created_at': tweet.created_at.isoformat(),
-            'retweets': tweet.retweet_count,
-            'likes': tweet.favorite_count
-        }
-        
-    except Exception as e:
-        return {'error': str(e)}
-
 @login_required
-def add_crawling_target(request, performance_id):
+def add_crawling_target(request, pk):
     """
     새로운 크롤링 대상을 추가합니다.
     """
@@ -566,30 +383,28 @@ def add_crawling_target(request, performance_id):
             data = json.loads(request.body)
             platform = data.get('platform')
             url = data.get('url')
+            is_active = data.get('is_active', True)
             
             if not all([platform, url]):
                 return JsonResponse({'error': '플랫폼과 URL을 모두 입력해주세요.'}, status=400)
             
-            performance = get_object_or_404(Performance, pk=performance_id)
+            performance = get_object_or_404(Performance, pk=pk)
             
-            # 크롤링 시도
-            crawling_result = crawl_platform(platform, url)
-            
-            if 'error' in crawling_result:
-                return JsonResponse({'error': crawling_result['error']}, status=400)
+            # 중복 체크
+            if CrawlingTarget.objects.filter(performance=performance, platform=platform, url=url).exists():
+                return JsonResponse({'error': '이미 등록된 크롤링 대상입니다.'}, status=400)
             
             # 크롤링 대상 저장
             target = CrawlingTarget.objects.create(
                 performance=performance,
                 platform=platform,
                 url=url,
-                last_crawled_data=crawling_result
+                is_active=is_active
             )
             
             return JsonResponse({
                 'message': '크롤링 대상이 성공적으로 추가되었습니다.',
-                'target_id': target.id,
-                'data': crawling_result
+                'target_id': target.id
             })
             
         except json.JSONDecodeError:
@@ -607,22 +422,26 @@ def update_crawling_target(request, target_id):
     """
     try:
         target = get_object_or_404(CrawlingTarget, pk=target_id)
+        data = json.loads(request.body)
         
-        # 크롤링 시도
-        crawling_result = crawl_platform(target.platform, target.url)
-        
-        if 'error' in crawling_result:
-            return JsonResponse({'error': crawling_result['error']}, status=400)
-        
-        # 크롤링 결과 업데이트
-        target.last_crawled_data = crawling_result
+        # 필드 업데이트
+        target.platform = data.get('platform', target.platform)
+        target.url = data.get('url', target.url)
+        target.is_active = data.get('is_active', target.is_active)
         target.save()
         
         return JsonResponse({
             'message': '크롤링 대상이 성공적으로 업데이트되었습니다.',
-            'data': crawling_result
+            'target': {
+                'id': target.id,
+                'platform': target.platform,
+                'url': target.url,
+                'is_active': target.is_active
+            }
         })
         
+    except json.JSONDecodeError:
+        return JsonResponse({'error': '잘못된 요청 형식입니다.'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -649,10 +468,21 @@ def delete_crawling_target(request, target_id):
     """
     try:
         target = get_object_or_404(CrawlingTarget, pk=target_id)
+        performance_id = target.performance.id
         target.delete()
-        return JsonResponse({'message': '크롤링 대상이 성공적으로 삭제되었습니다.'})
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'message': '크롤링 대상이 성공적으로 삭제되었습니다.'})
+        else:
+            messages.success(request, '크롤링 대상이 성공적으로 삭제되었습니다.')
+            return redirect('data_analysis:performance_detail', pk=performance_id)
+            
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'error': str(e)}, status=500)
+        else:
+            messages.error(request, f'크롤링 대상 삭제 중 오류가 발생했습니다: {str(e)}')
+            return redirect('data_analysis:performance_detail', pk=performance_id)
 
 @login_required
 @require_POST

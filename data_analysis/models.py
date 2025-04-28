@@ -140,18 +140,16 @@ class PerformanceSession(models.Model):
 
 # 회차별 요약 판매
 class SessionSummary(models.Model):
-    session           = models.OneToOneField(PerformanceSession, on_delete=models.CASCADE,
-                                             related_name='summary', verbose_name='회차')
-    total_seats_sold  = models.PositiveIntegerField(verbose_name='판매좌석수')
-    total_revenue     = models.PositiveIntegerField(verbose_name='매출액')
-    occupancy_rate    = models.DecimalField(max_digits=5, decimal_places=2,
-                                            verbose_name='객석 점유율')
-    paid_rate         = models.DecimalField(max_digits=5, decimal_places=2,
-                                            verbose_name='유료 비율')
-    free_rate         = models.DecimalField(max_digits=5, decimal_places=2,
-                                            verbose_name='무료 비율')
-    target_revenue    = models.PositiveIntegerField(default=0, verbose_name='목표 매출')
-    variance_revenue  = models.IntegerField(default=0, verbose_name='목표 대비 차액')
+    session      = models.OneToOneField(PerformanceSession, on_delete=models.CASCADE,
+                                        related_name='summary', verbose_name='회차')
+    r_count      = models.PositiveIntegerField(null=True, verbose_name='R석 판매수')
+    s_count      = models.PositiveIntegerField(null=True, verbose_name='S석 판매수')
+    total_count  = models.PositiveIntegerField(null=True, verbose_name='총 판매수')
+    total_amount = models.PositiveIntegerField(null=True, verbose_name='총 매출액')
+    r_avg        = models.DecimalField(max_digits=10, decimal_places=2, null=True, verbose_name='R석 평균')
+    s_avg        = models.DecimalField(max_digits=10, decimal_places=2, null=True, verbose_name='S석 평균')
+    total_avg    = models.DecimalField(max_digits=10, decimal_places=2, null=True, verbose_name='전체 평균')
+    amount_avg   = models.DecimalField(max_digits=10, decimal_places=2, null=True, verbose_name='금액 평균')
 
     class Meta:
         verbose_name = '회차별 판매 요약'

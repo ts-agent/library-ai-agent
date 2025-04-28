@@ -29,6 +29,7 @@ multidict==6.4.3
 numpy==1.26.3
 packaging==25.0
 pandas==2.2.0
+openpyxl==3.1.2
 propcache==0.3.1
 proto-plus==1.26.1
 protobuf==6.30.2

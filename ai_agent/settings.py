@@ -19,6 +19,10 @@ from sqlalchemy.pool import QueuePool
 from sqlalchemy import create_engine
 from google.oauth2 import service_account
 from datetime import timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -184,11 +188,11 @@ STATICFILES_DIRS = [
 
 if os.getenv('GAE_ENV', '').startswith('standard'):
     # App Engine 환경
-    GS_BUCKET_NAME = 'library-ai-agent-storage'
-    GS_PROJECT_ID = 'library-ai-agent-kr'
+    GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME', 'library-ai-agent-storage')
+    GS_PROJECT_ID = os.getenv('GS_PROJECT_ID', 'library-ai-agent-kr')
     
     # App Engine의 기본 서비스 계정 사용
-    GS_CREDENTIALS = None  # App Engine 환경에서는 자동으로 인증 처리
+    GS_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
     
     # GCS 설정
     GS_QUERYSTRING_AUTH = False  # URL 서명 비활성화

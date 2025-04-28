@@ -229,8 +229,9 @@
     .fc-button {
         font-family: inherit;
         font-weight: 600;
-        border-radius: 12px !important;
-        padding: 0.75rem 1.25rem !important;
+        border-radius: 8px !important;
+        padding: 0.4rem 0.75rem !important;
+        font-size: 0.875rem !important;
         transition: all 0.2s ease-in-out !important;
     }
 
@@ -242,14 +243,39 @@
     .fc-button-primary:hover {
         background-color: #1B64DA !important;
         border-color: #1B64DA !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(49, 130, 246, 0.2);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(49, 130, 246, 0.2);
     }
 
     .fc-button-primary:not(:disabled).fc-button-active,
     .fc-button-primary:not(:disabled):active {
         background-color: #1B64DA !important;
         border-color: #1B64DA !important;
+    }
+
+    /* 헤더 타이틀 스타일 */
+    .fc .fc-toolbar-title {
+        font-size: 1.25rem !important;
+        font-weight: 600;
+    }
+
+    /* 버튼 간격 조정 */
+    .fc-toolbar-chunk {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    /* today 버튼 스타일 */
+    .fc-today-button {
+        font-size: 0.75rem !important;
+        padding: 0.35rem 0.65rem !important;
+    }
+
+    /* 이전/다음 버튼 아이콘 크기 */
+    .fc-prev-button .fc-icon,
+    .fc-next-button .fc-icon {
+        font-size: 1rem !important;
     }
 
     /* Crawling Target */

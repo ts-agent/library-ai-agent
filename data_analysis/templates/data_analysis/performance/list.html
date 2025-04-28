@@ -211,31 +211,166 @@
 
     /* Responsive Adjustments */
     @media (max-width: 768px) {
-        .btn-group {
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .btn-check + .btn-outline-secondary {
-            margin-bottom: 0;
-            width: calc(50% - 8px);
-        }
-        
-        .table td, .table th {
+        .container-fluid {
             padding: 1rem;
         }
 
         .card {
-            padding: 1rem;
-            border-radius: 16px;
-        }
-
-        .btn {
-            padding: 0.625rem 1.25rem;
+            padding: 1.25rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
         }
 
         .h3 {
             font-size: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn-check + .btn-outline-secondary {
+            width: 100%;
+            margin: 0;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-form {
+            margin-top: 1rem;
+        }
+
+        .form-control {
+            height: 44px;
+            font-size: 1rem;
+        }
+
+        .table-responsive {
+            margin: 0 -1.25rem;
+            padding: 0 1.25rem;
+            width: calc(100% + 2.5rem);
+        }
+
+        .table {
+            display: block;
+        }
+
+        .table thead {
+            display: none;
+        }
+
+        .table tbody {
+            display: block;
+        }
+
+        .table tr {
+            display: block;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+
+        .table td {
+            display: block;
+            padding: 0.5rem 0;
+            border: none;
+            font-size: 0.875rem;
+        }
+
+        .performance-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .performance-image-placeholder {
+            width: 100%;
+            height: 200px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .performance-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #191F28;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .performance-status {
+            font-size: 0.813rem;
+            color: #8B95A1;
+            margin-bottom: 1rem;
+        }
+
+        .performance-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: #8B95A1;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 0.875rem;
+            color: #191F28;
+            font-weight: 500;
+        }
+
+        .management-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #F2F4F6;
+        }
+
+        .management-buttons .btn {
+            width: 100%;
+            height: 44px;
+            font-size: 0.875rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .pagination {
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .page-link {
+            min-width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
         }
     }
 </style>
@@ -258,7 +393,7 @@
     <!-- 필터 영역 -->
     <div class="card mb-4">
         <div class="card-body">
-            <div class="row align-items-center">
+            <div class="row">
                 <div class="col-md-8">
                     <div class="btn-group" role="group">
                         <input type="radio" class="btn-check" name="genre" id="all" value="" {% if not request.GET.genre %}checked{% endif %}>
@@ -278,9 +413,9 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <form class="d-flex" method="get">
+                    <form class="d-flex search-form" method="get">
                         <input type="hidden" name="genre" value="{{ request.GET.genre }}">
-                        <input class="form-control" type="search" name="search" placeholder="공연명 검색" value="{{ request.GET.search }}">
+                        <input class="form-control flex-grow-1" type="search" name="search" placeholder="공연명 검색" value="{{ request.GET.search }}">
                         <button class="btn btn-outline-primary ms-2" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
@@ -319,24 +454,43 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <div>
-                                    <div class="fw-bold">{{ performance.name }}</div>
-                                    <small class="text-muted">{{ performance.get_status_display }}</small>
+                                <div class="performance-name">{{ performance.name }}</div>
+                                <div class="performance-status">{{ performance.get_status_display }}</div>
+                                <div class="performance-info d-md-none">
+                                    <div>
+                                        <div class="info-label">장르</div>
+                                        <div class="info-value">{{ performance.get_genre_display }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="info-label">러닝타임</div>
+                                        <div class="info-value">{{ performance.running_time }}분</div>
+                                    </div>
+                                    <div>
+                                        <div class="info-label">공연 기간</div>
+                                        <div class="info-value">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="info-label">공연장</div>
+                                        <div class="info-value">{{ performance.venue }}</div>
+                                    </div>
                                 </div>
                             </td>
-                            <td>{{ performance.get_genre_display }}</td>
+                            <td class="d-none d-md-table-cell">{{ performance.get_genre_display }}</td>
+                            <td class="d-none d-md-table-cell">{{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}</td>
+                            <td class="d-none d-md-table-cell">{{ performance.running_time }}분</td>
+                            <td class="d-none d-md-table-cell">{{ performance.venue }}</td>
                             <td>
-                                {{ performance.start_date|date:"Y.m.d" }} ~ {{ performance.end_date|date:"Y.m.d" }}
-                            </td>
-                            <td>{{ performance.running_time }}분</td>
-                            <td>{{ performance.venue }}</td>
-                            <td>
-                                <div class="btn-group" onclick="event.stopPropagation();">
-                                    <a href="{% url 'data_analysis:performance_update' performance.pk %}" class="btn btn-sm btn-outline-primary">
+                                <div class="management-buttons" onclick="event.stopPropagation();">
+                                    <a href="{% url 'data_analysis:performance_update' performance.pk %}" 
+                                       class="btn btn-outline-primary">
                                         <i class="bi bi-pencil"></i>
+                                        <span class="d-md-none">수정</span>
                                     </a>
-                                    <a href="{% url 'data_analysis:performance_delete' performance.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <a href="{% url 'data_analysis:performance_delete' performance.pk %}" 
+                                       class="btn btn-outline-danger"
+                                       onclick="return confirm('정말 삭제하시겠습니까?')">
                                         <i class="bi bi-trash"></i>
+                                        <span class="d-md-none">삭제</span>
                                     </a>
                                 </div>
                             </td>
@@ -404,23 +558,25 @@
 
 {% block extra_js %}
 <script>
-// 공연 행 클릭 이벤트 처리
-document.querySelectorAll('.performance-row').forEach(row => {
-    row.addEventListener('click', function() {
-        window.location.href = this.dataset.url;
+document.addEventListener('DOMContentLoaded', function() {
+    // 공연 행 클릭 이벤트 처리
+    document.querySelectorAll('.performance-row').forEach(row => {
+        row.addEventListener('click', function() {
+            window.location.href = this.dataset.url;
+        });
     });
-});
 
-// 장르 필터 처리
-document.querySelectorAll('.btn-check').forEach(radio => {
-    radio.addEventListener('change', function() {
-        const searchParams = new URLSearchParams(window.location.search);
-        if (this.value) {
-            searchParams.set('genre', this.value);
-        } else {
-            searchParams.delete('genre');
-        }
-        window.location.href = `${window.location.pathname}?${searchParams.toString()}`;
+    // 장르 필터 처리
+    document.querySelectorAll('.btn-check').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const searchParams = new URLSearchParams(window.location.search);
+            if (this.value) {
+                searchParams.set('genre', this.value);
+            } else {
+                searchParams.delete('genre');
+            }
+            window.location.href = `${window.location.pathname}?${searchParams.toString()}`;
+        });
     });
 });
 </script>

@@ -3,7 +3,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse_lazy
 from django.http import JsonResponse, HttpResponse
 from django.db.models import F, Sum, Avg, Max
-from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, SettlementData, MarketingCalendar, MarketingEvent, CrawlingTarget
+from .models import Performance, Actor, SeatGrade, Casting, Review, SalesData, SettlementData, MarketingCalendar, MarketingEvent, CrawlingTarget, SessionSummary
 from .forms import PerformanceForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -22,6 +22,8 @@ from django.utils import timezone
 import calendar
 from datetime import timedelta
 from decimal import Decimal
+from data_analysis.management.commands.import_sales import import_one_file
+from django.core.files.storage import FileSystemStorage
 
 @login_required
 def index(request):
@@ -47,38 +49,69 @@ class PerformanceDetailView(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # 공연 세션 및 회차별 요약 정보 가져오기
         performance = self.get_object()
+        sessions = performance.sessions.all()
         
-        # 마케팅 캘린더 데이터 추가
-        calendar, created = MarketingCalendar.objects.get_or_create(
-            performance=performance,
-            defaults={
-                'start_date': performance.start_date,
-                'end_date': performance.end_date
+        # 일정 데이터
+        events = {}
+        for calendar in MarketingCalendar.objects.filter(performance=performance):
+            for event in calendar.events.all():
+                date_str = event.start_date.strftime('%Y-%m-%d')
+                if date_str not in events:
+                    events[date_str] = []
+                
+                events[date_str].append({
+                    'id': event.id,
+                    'title': event.title,
+                    'start_date': event.start_date.strftime('%Y-%m-%d'),
+                    'end_date': event.end_date.strftime('%Y-%m-%d'),
+                    'description': event.description,
+                    'tag': event.tag,
+                    'color': event.color
+                })
+                
+        context['events_json'] = json.dumps(events)
+        
+        # 세션 및 요약 정보를 JSON으로 직렬화
+        session_data = {}
+        for session in sessions:
+            try:
+                summary = session.summary
+                summary_data = {
+                    'r_count': summary.r_count,
+                    's_count': summary.s_count,
+                    'total_count': summary.total_count,
+                    'total_amount': summary.total_amount,
+                    'r_avg': float(summary.r_avg) if summary.r_avg else 0,
+                    's_avg': float(summary.s_avg) if summary.s_avg else 0,
+                    'total_avg': float(summary.total_avg) if summary.total_avg else 0,
+                    'amount_avg': float(summary.amount_avg) if summary.amount_avg else 0
+                }
+            except SessionSummary.DoesNotExist:
+                # 요약 정보가 없는 경우 기본값 설정
+                summary_data = {
+                    'r_count': 0,
+                    's_count': 0,
+                    'total_count': 0,
+                    'total_amount': 0,
+                    'r_avg': 0,
+                    's_avg': 0,
+                    'total_avg': 0,
+                    'amount_avg': 0
+                }
+            
+            session_data[session.id] = {
+                'id': session.id,
+                'date': session.session_date.strftime('%Y-%m-%d'),
+                'time': session.session_time.strftime('%H:%M'),
+                'round_number': session.round_number,
+                'day_of_week': session.day_of_week,
+                'summary': summary_data
             }
-        )
-        
-        # 이벤트를 날짜별로 그룹화
-        events = MarketingEvent.objects.filter(calendar=calendar)
-        events_by_date = {}
-        for event in events:
-            date_str = event.start_date.isoformat()
-            if date_str not in events_by_date:
-                events_by_date[date_str] = []
-            events_by_date[date_str].append({
-                'id': event.id,
-                'title': event.title,
-                'description': event.description,
-                'start_date': event.start_date.isoformat(),
-                'end_date': event.end_date.isoformat(),
-                'tag': event.tag,
-                'color': event.color
-            })
-        
-        context.update({
-            'calendar': calendar,
-            'events_json': json.dumps(events_by_date)
-        })
+            
+        context['sessions_json'] = json.dumps(session_data)
         
         return context
 
@@ -237,22 +270,58 @@ class ReviewLikeView(View):
 
 @login_required
 def sales_data_upload(request, pk):
-    performance = get_object_or_404(Performance, pk=pk)
-    if request.method == 'POST':
-        file = request.FILES.get('file')
-        description = request.POST.get('description', '')
+    try:
+        performance = Performance.objects.get(pk=pk)
+    except Performance.DoesNotExist:
+        messages.error(request, '해당 공연을 찾을 수 없습니다.')
+        return redirect('data_analysis:performance_list')
+
+    if request.method == "POST":
+        # AJAX 요청인지 확인
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         
-        if file and file.name.endswith(('.xlsx', '.xls')):
-            SalesData.objects.create(
-                performance=performance,
-                file=file,
-                description=description
-            )
-            messages.success(request, '판매현황 데이터가 업로드되었습니다.')
-        else:
-            messages.error(request, '엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.')
+        if not request.FILES.get('file'):
+            if is_ajax:
+                return JsonResponse({'status': 'error', 'message': '업로드할 파일을 선택해주세요.'}, status=400)
+            else:
+                messages.error(request, '업로드할 파일을 선택해주세요.')
+                return redirect('data_analysis:performance_detail', pk=pk)
+        
+        file = request.FILES['file']
+        if not file.name.endswith('.xlsx'):
+            if is_ajax:
+                return JsonResponse({'status': 'error', 'message': 'Excel 파일(.xlsx)만 업로드 가능합니다.'}, status=400)
+            else:
+                messages.error(request, 'Excel 파일(.xlsx)만 업로드 가능합니다.')
+                return redirect('data_analysis:performance_detail', pk=pk)
+        
+        # 파일 저장
+        fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+        filename = fs.save(file.name, file)
+        uploaded_file_path = os.path.join(settings.MEDIA_ROOT, filename)
+        
+        try:
+            # 기존 import_one_file 함수 호출 시 performance_id 전달
+            import_one_file(uploaded_file_path, performance_id=pk)
+            
+            if is_ajax:
+                return JsonResponse({'status': 'success', 'message': '판매 데이터가 성공적으로 업로드되었습니다.'})
+            else:
+                messages.success(request, '판매 데이터가 성공적으로 업로드되었습니다.')
+                return redirect('data_analysis:performance_detail', pk=pk)
+        except Exception as e:
+            error_message = f'파일 처리 중 오류가 발생했습니다: {str(e)}'
+            if is_ajax:
+                return JsonResponse({'status': 'error', 'message': error_message}, status=500)
+            else:
+                messages.error(request, error_message)
+                return redirect('data_analysis:performance_detail', pk=pk)
+        finally:
+            # 임시 파일 삭제
+            if os.path.exists(uploaded_file_path):
+                os.remove(uploaded_file_path)
     
-    return redirect('data_analysis:performance_detail', pk=pk)
+    return render(request, 'data_analysis/sales_data_upload.html', {'performance': performance})
 
 @login_required
 def settlement_data_upload(request, pk):

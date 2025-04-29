@@ -157,6 +157,29 @@ class SessionSummary(models.Model):
 
     def __str__(self):
         return f'{self.session} 요약'
+        
+    @classmethod
+    def get_for_session(cls, session):
+        """
+        세션에 대한 요약 정보를 안전하게 가져옵니다.
+        요약 정보가 없을 경우 기본값이 설정된 SessionSummary 객체를 반환합니다.
+        이 메소드는 DoesNotExist 예외를 방지하기 위해 사용됩니다.
+        """
+        try:
+            return cls.objects.get(session=session)
+        except cls.DoesNotExist:
+            # 데이터베이스에 저장하지 않는 임시 객체
+            return cls(
+                session=session,
+                r_count=0,
+                s_count=0,
+                total_count=0,
+                total_amount=0,
+                r_avg=0,
+                s_avg=0,
+                total_avg=0,
+                amount_avg=0
+            )
 
 
 # 회차-좌석등급 판매상세

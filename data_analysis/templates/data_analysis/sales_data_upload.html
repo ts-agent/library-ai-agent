@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}판매 데이터 업로드 - {{ performance.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm rounded-4 border-0">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-4 fw-bold">판매 데이터 업로드</h2>
+                    <h4 class="mb-3">{{ performance.name }}</h4>
+                    
+                    <div id="upload-form-container">
+                        <form id="upload-form" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label for="file" class="form-label">엑셀 파일 (.xlsx)</label>
+                                <input type="file" class="form-control" id="file" name="file" accept=".xlsx" required>
+                                <div class="form-text mt-2">판매 데이터가 포함된 엑셀 파일을 선택해주세요.</div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'data_analysis:performance_detail' performance.id %}" class="btn btn-outline-secondary">취소</a>
+                                <button type="submit" class="btn btn-primary px-4">업로드</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div id="progress-container" class="d-none">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">로딩 중...</span>
+                            </div>
+                            <p class="mb-0">파일을 처리하는 중입니다. 잠시만 기다려주세요...</p>
+                        </div>
+                    </div>
+                    
+                    <div id="success-container" class="d-none">
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle-fill text-success" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                </svg>
+                            </div>
+                            <h5 class="mb-3">업로드 성공!</h5>
+                            <p id="success-message" class="mb-4">판매 데이터가 성공적으로 업로드되었습니다.</p>
+                            <a href="{% url 'data_analysis:performance_detail' performance.id %}" class="btn btn-primary">공연 상세 페이지로 이동</a>
+                        </div>
+                    </div>
+                    
+                    <div id="error-container" class="d-none">
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-exclamation-circle-fill text-danger" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                                </svg>
+                            </div>
+                            <h5 class="mb-3">오류 발생</h5>
+                            <p id="error-message" class="mb-4 text-danger">파일 처리 중 오류가 발생했습니다.</p>
+                            <button id="try-again" class="btn btn-outline-primary">다시 시도</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('upload-form');
+        const formContainer = document.getElementById('upload-form-container');
+        const progressContainer = document.getElementById('progress-container');
+        const successContainer = document.getElementById('success-container');
+        const errorContainer = document.getElementById('error-container');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const tryAgainButton = document.getElementById('try-again');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('file');
+            if (!fileInput.files.length) {
+                alert('업로드할 파일을 선택해주세요.');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.xlsx')) {
+                alert('Excel 파일(.xlsx)만 업로드 가능합니다.');
+                return;
+            }
+            
+            const formData = new FormData(form);
+            
+            // UI 상태 변경
+            formContainer.classList.add('d-none');
+            progressContainer.classList.remove('d-none');
+            successContainer.classList.add('d-none');
+            errorContainer.classList.add('d-none');
+            
+            // AJAX 요청 설정
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', form.action || window.location.href);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            
+            xhr.onload = function() {
+                progressContainer.classList.add('d-none');
+                
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    successMessage.textContent = response.message || '판매 데이터가 성공적으로 업로드되었습니다.';
+                    successContainer.classList.remove('d-none');
+                } else {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        errorMessage.textContent = response.message || '파일 처리 중 오류가 발생했습니다.';
+                    } catch (e) {
+                        errorMessage.textContent = '파일 처리 중 오류가 발생했습니다.';
+                    }
+                    errorContainer.classList.remove('d-none');
+                }
+            };
+            
+            xhr.onerror = function() {
+                progressContainer.classList.add('d-none');
+                errorMessage.textContent = '네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.';
+                errorContainer.classList.remove('d-none');
+            };
+            
+            xhr.send(formData);
+        });
+        
+        tryAgainButton.addEventListener('click', function() {
+            errorContainer.classList.add('d-none');
+            formContainer.classList.remove('d-none');
+        });
+    });
+</script>
+{% endblock %} 

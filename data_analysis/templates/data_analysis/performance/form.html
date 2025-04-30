@@ -227,7 +227,7 @@
                                     id="{{ form.genre.id_for_label }}"
                                     name="{{ form.genre.name }}"
                                     required>
-                                <option value="" selected>장르 선택</option>
+                                <option value="" {% if not form.genre.value %}selected{% endif %}>장르 선택</option>
                                 <option value="concert" {% if form.genre.value == 'concert' %}selected{% endif %}>콘서트</option>
                                 <option value="musical" {% if form.genre.value == 'musical' %}selected{% endif %}>뮤지컬</option>
                                 <option value="play" {% if form.genre.value == 'play' %}selected{% endif %}>연극</option>
@@ -398,6 +398,15 @@
             allowInput: true
         });
 
+        // 폼이 처음 로딩될 때 장르 선택을 기본값으로 설정 (신규 등록일 경우)
+        if (!document.querySelector('form').hasAttribute('data-submitted')) {
+            const genreSelect = document.getElementById('{{ form.genre.id_for_label }}');
+            // 수정 페이지가 아닌 경우에만 기본값 설정
+            if (!{{ form.instance.pk|yesno:"true,false" }}) {
+                genreSelect.value = '';
+            }
+        }
+
         // 포스터 이미지 미리보기
         const posterInput = document.getElementById('{{ form.poster.id_for_label }}');
         const posterPreview = document.getElementById('posterPreview');
@@ -420,6 +429,7 @@
                 event.stopPropagation();
             }
             form.classList.add('was-validated');
+            form.setAttribute('data-submitted', 'true');
         });
     });
 </script>

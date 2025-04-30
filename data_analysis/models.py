@@ -265,11 +265,25 @@ class TicketOpenEvent(models.Model):
 
 # 판매현황 파일 메타
 class SalesData(models.Model):
+    STATUS_CHOICES = [
+        ('pending', '처리 대기'),
+        ('processing', '처리 중'),
+        ('done', '완료'),
+        ('error', '오류'),
+    ]
+    
     performance = models.ForeignKey(Performance, on_delete=models.CASCADE,
                                     related_name='sales_data', verbose_name='공연')
     file        = models.FileField(upload_to='sales_data/%Y/%m/', verbose_name='판매현황 파일')
     uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='업로드 일시')
     description = models.CharField(max_length=200, blank=True, verbose_name='설명')
+
+    # 판매 데이터 처리 상태 관련 필드
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', 
+                             verbose_name='처리 상태')
+    file_hash = models.CharField(max_length=64, blank=True, verbose_name='파일 해시')
+    processed_at = models.DateTimeField(null=True, blank=True, verbose_name='처리 완료 시간')
+    error_log = models.TextField(blank=True, verbose_name='오류 로그')
 
     total_sales_count    = models.PositiveIntegerField(default=0, verbose_name='총 판매량')
     paid_rate            = models.DecimalField(max_digits=5, decimal_places=2,
@@ -278,10 +292,8 @@ class SalesData(models.Model):
                                                default=0, verbose_name='무료 점유율')
     total_occupancy_rate = models.DecimalField(max_digits=5, decimal_places=2,
                                                default=0, verbose_name='전체 점유율')
-    target_amount        = models.DecimalField(max_digits=15, decimal_places=0,
-                                               default=0, verbose_name='목표 매출')
-    total_amount         = models.DecimalField(max_digits=15, decimal_places=0,
-                                               default=0, verbose_name='총 매출액')
+    target_amount        = models.BigIntegerField(default=0, verbose_name='목표 매출')
+    total_amount         = models.BigIntegerField(default=0, verbose_name='총 매출액')
     average_ticket_price = models.DecimalField(max_digits=10, decimal_places=0,
                                                default=0, verbose_name='객단가')
 
@@ -289,6 +301,11 @@ class SalesData(models.Model):
         verbose_name = '판매현황'
         verbose_name_plural = '판매현황'
         ordering = ['-uploaded_at']
+        unique_together = ['performance', 'file_hash']
+        indexes = [
+            models.Index(fields=['performance', 'status']),
+            models.Index(fields=['status']),
+        ]
 
     def __str__(self):
         return f'{self.performance.name} 판매현황 {self.uploaded_at:%Y-%m-%d}'

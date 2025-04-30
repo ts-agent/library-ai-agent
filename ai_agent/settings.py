@@ -241,3 +241,6 @@ SECURE_HSTS_PRELOAD = True
 # 로그인/로그아웃 설정
 LOGIN_REDIRECT_URL = '/data_analysis/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# Celery 설정 제거됨
+# 비동기 처리가 필요한 경우 다른 방법을 사용하세요.
